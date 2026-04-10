@@ -214,6 +214,22 @@
 
     /* Divider */
     .row-2col { display:grid; grid-template-columns:1.6fr 1fr; gap:14px; margin-bottom:20px; }
+
+    /* ── Order / supplier extras ── */
+    .badge-blue   { background:rgba(79,110,247,.15); color:var(--accent); }
+    .badge-purple { background:rgba(124,58,237,.15); color:var(--accent2); }
+    .badge-muted  { background:var(--surface2); color:var(--muted); }
+    .supplier-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:20px; }
+    .supplier-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    .supplier-card-name { font-size:16px; font-weight:700; margin-bottom:2px; }
+    .supplier-card-meta { font-size:12px; color:var(--muted); margin-bottom:14px; }
+    .supplier-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .supplier-stat { text-align:center; background:var(--surface2); border-radius:8px; padding:10px; }
+    .supplier-stat-val { font-size:18px; font-weight:700; }
+    .supplier-stat-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+    .dp-row { display:grid; grid-template-columns:1.5fr 1fr; gap:14px; margin-bottom:20px; }
+    .factor-bar { height:6px; background:var(--border); border-radius:3px; margin-top:5px; }
+    .factor-fill { height:100%; border-radius:3px; }
   </style>
 </head>
 <body>
@@ -227,6 +243,10 @@
     <div class="nav-item" data-page="sku-explorer"><span class="icon">📦</span> SKU Explorer</div>
     <div class="nav-item" data-page="forecast-board"><span class="icon">🔮</span> Forecast Board</div>
     <div class="nav-item" data-page="alerts"><span class="icon">🚨</span> Alerts <span class="nav-badge">3</span></div>
+    <div class="nav-section">Planning</div>
+    <div class="nav-item" data-page="replenishment"><span class="icon">🛒</span> Replenishment</div>
+    <div class="nav-item" data-page="suppliers"><span class="icon">🏭</span> Suppliers</div>
+    <div class="nav-item" data-page="demand-planning"><span class="icon">📉</span> Demand Planning</div>
     <div class="nav-section">Data</div>
     <div class="nav-item"><span class="icon">🔄</span> Pipeline</div>
     <div class="nav-item"><span class="icon">⚙️</span> Settings</div>
@@ -517,6 +537,80 @@
       </div>
     </div><!-- /page-alerts -->
 
+    <!-- ══════════ PAGE: REPLENISHMENT ══════════ -->
+    <div class="page" id="page-replenishment">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Open Orders</div><div class="kpi-value">5</div><div class="kpi-change warn">2 need approval</div></div>
+        <div class="kpi-card"><div class="kpi-label">Pending Approval</div><div class="kpi-value warn">2</div><div class="kpi-change">Value $72.3K</div></div>
+        <div class="kpi-card"><div class="kpi-label">In Transit</div><div class="kpi-value up">1</div><div class="kpi-change up">ETA Apr 23</div></div>
+        <div class="kpi-card"><div class="kpi-label">Delivered This Month</div><div class="kpi-value up">1</div><div class="kpi-change up">↑ On schedule</div></div>
+      </div>
+      <div class="table-card" style="margin-top:20px;">
+        <div class="table-header">
+          <div class="card-title">Purchase Orders</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div class="filter-row">
+              <div class="chip active">All</div><div class="chip">Pending</div><div class="chip">Approved</div><div class="chip">In Transit</div>
+            </div>
+            <button class="btn btn-primary btn-sm">+ New Order</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Order ID</th><th>SKU / Product</th><th>Supplier</th><th>Qty</th><th>Status</th><th>Ordered</th><th>ETA</th><th>Value</th><th>Action</th></tr></thead>
+          <tbody id="replenishment-tbody"></tbody>
+        </table>
+      </div>
+    </div><!-- /page-replenishment -->
+
+
+    <!-- ══════════ PAGE: SUPPLIERS ══════════ -->
+    <div class="page" id="page-suppliers">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Total Suppliers</div><div class="kpi-value">4</div><div class="kpi-change up">All active</div></div>
+        <div class="kpi-card"><div class="kpi-label">Avg Lead Time</div><div class="kpi-value">14d</div><div class="kpi-change warn">FurnCo at 30d</div></div>
+        <div class="kpi-card"><div class="kpi-label">Avg On-Time Rate</div><div class="kpi-value up">90.3%</div><div class="kpi-change up">↑ vs last quarter</div></div>
+        <div class="kpi-card"><div class="kpi-label">Open POs</div><div class="kpi-value">5</div><div class="kpi-change">Across 3 suppliers</div></div>
+      </div>
+      <div class="supplier-grid" id="supplier-grid" style="margin-top:20px;"></div>
+      <div class="table-card">
+        <div class="table-header"><div class="card-title">Supplier Performance</div></div>
+        <table>
+          <thead><tr><th>Supplier</th><th>Category</th><th>SKUs</th><th>Avg Lead Time</th><th>On-Time %</th><th>Open POs</th><th>Status</th></tr></thead>
+          <tbody id="suppliers-tbody"></tbody>
+        </table>
+      </div>
+    </div><!-- /page-suppliers -->
+
+
+    <!-- ══════════ PAGE: DEMAND PLANNING ══════════ -->
+    <div class="page" id="page-demand-planning">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Model Accuracy</div><div class="kpi-value up">91.4%</div><div class="kpi-change up">↑ 3.1% vs prior model</div></div>
+        <div class="kpi-card"><div class="kpi-label">Demand Growth (30D)</div><div class="kpi-value up">+8.4%</div><div class="kpi-change">Electronics leading</div></div>
+        <div class="kpi-card"><div class="kpi-label">SKUs Under Plan</div><div class="kpi-value">4,812</div><div class="kpi-change up">All categories</div></div>
+        <div class="kpi-card"><div class="kpi-label">Reorder Events (14D)</div><div class="kpi-value warn">12</div><div class="kpi-change down">5 at risk</div></div>
+      </div>
+      <div class="dp-row" style="margin-top:20px;">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Category Demand Forecast — 12 Weeks</div><div class="card-sub">Projected weekly units</div></div>
+          </div>
+          <canvas id="dpForecastChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Seasonality Factors</div><div class="card-sub">Current period adjustments</div></div></div>
+          <div id="seasonality-list" style="padding-top:4px;"></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><div class="card-title">SKU Demand Plan</div></div>
+        <table>
+          <thead><tr><th>SKU / Product</th><th>Category</th><th>Stock</th><th>30D Forecast</th><th>90D Forecast</th><th>Trend</th><th>Seasonality</th><th></th></tr></thead>
+          <tbody id="demand-tbody"></tbody>
+        </table>
+      </div>
+    </div><!-- /page-demand-planning -->
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -548,7 +642,10 @@ const pageTitles = {
   'sku-explorer':['SKU Explorer',    'Browse & search all products'],
   'sku-detail':  ['SKU Detail',      'Forecast drill-down'],
   'forecast-board':['Forecast Board','Compare SKUs side-by-side'],
-  alerts:        ['Alerts & Actions','Real-time monitoring'],
+  alerts:           ['Alerts & Actions',  'Real-time monitoring'],
+  replenishment:    ['Replenishment',     'Purchase orders & reorder management'],
+  suppliers:        ['Suppliers',         'Supplier performance & lead times'],
+  'demand-planning':['Demand Planning',   'Forecast models & category trends'],
 };
 
 function navigate(pageId) {
@@ -817,6 +914,147 @@ document.querySelectorAll('.time-tab').forEach(t => {
     t.classList.add('active');
   });
 });
+
+// ═══════════════════════════════════
+//  REPLENISHMENT DATA & RENDER
+// ═══════════════════════════════════
+const orderStatus = {
+  pending:     { cls:'badge-yellow',  label:'Pending Approval' },
+  approved:    { cls:'badge-blue',    label:'Approved' },
+  'in-transit':{ cls:'badge-purple',  label:'In Transit' },
+  delivered:   { cls:'badge-green',   label:'Delivered' },
+  cancelled:   { cls:'badge-muted',   label:'Cancelled' },
+};
+const orders = [
+  { id:'PO-2026-001', sku:'SKU-51200', name:'Wireless Earbuds Pro',  supplier:'TechCo',     qty:500,  status:'pending',     ordered:'Apr 8', eta:'Apr 22', value:12500 },
+  { id:'PO-2026-002', sku:'SKU-10042', name:"Men's Running Shoes",   supplier:'FabricPlus', qty:600,  status:'approved',    ordered:'Apr 7', eta:'Apr 21', value:28800 },
+  { id:'PO-2026-003', sku:'SKU-71300', name:'Air Fryer XL',          supplier:'FurnCo',     qty:300,  status:'in-transit',  ordered:'Apr 5', eta:'Apr 23', value:22500 },
+  { id:'PO-2026-004', sku:'SKU-20187', name:'4K Smart TV 55"',       supplier:'TechCo',     qty:200,  status:'pending',     ordered:'Apr 8', eta:'Apr 29', value:59800 },
+  { id:'PO-2026-005', sku:'SKU-44320', name:'Standing Desk Frame',   supplier:'FurnCo',     qty:150,  status:'approved',    ordered:'Apr 3', eta:'May 3',  value:26250 },
+  { id:'PO-2026-006', sku:'SKU-33015', name:'Organic Coffee Blend',  supplier:'FreshFarm',  qty:1000, status:'delivered',   ordered:'Apr 1', eta:'Apr 6',  value:8500  },
+];
+
+function renderReplenishment() {
+  document.getElementById('replenishment-tbody').innerHTML = orders.map(o => {
+    const os = orderStatus[o.status];
+    const action = o.status === 'pending'
+      ? `<button class="btn btn-primary btn-sm" style="font-size:11px;padding:4px 10px;">Approve</button>`
+      : o.status === 'approved' || o.status === 'in-transit'
+      ? `<button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 10px;">Track</button>`
+      : `<span style="font-size:11px;color:var(--muted);">—</span>`;
+    return `<tr>
+      <td style="font-weight:600">${o.id}</td>
+      <td><div style="font-weight:600">${o.sku}</div><div style="font-size:11px;color:var(--muted)">${o.name}</div></td>
+      <td>${o.supplier}</td>
+      <td>${o.qty.toLocaleString()} u</td>
+      <td><span class="badge ${os.cls}">${os.label}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${o.ordered}</td>
+      <td style="font-size:12px">${o.eta}</td>
+      <td style="font-weight:600">$${o.value.toLocaleString()}</td>
+      <td>${action}</td>
+    </tr>`;
+  }).join('');
+}
+renderReplenishment();
+
+// ═══════════════════════════════════
+//  SUPPLIERS DATA & RENDER
+// ═══════════════════════════════════
+const suppliers = [
+  { name:'TechCo',     cat:'Electronics', skus:2, lead:'17d', onTime:94, openOrders:2 },
+  { name:'FabricPlus', cat:'Apparel',     skus:2, lead:'10d', onTime:88, openOrders:1 },
+  { name:'FreshFarm',  cat:'Grocery',     skus:2, lead:'6d',  onTime:97, openOrders:0 },
+  { name:'FurnCo',     cat:'Home',        skus:2, lead:'24d', onTime:82, openOrders:2 },
+];
+
+function renderSuppliers() {
+  const color = pct => pct >= 95 ? 'var(--green)' : pct >= 85 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('supplier-grid').innerHTML = suppliers.map(s => `
+    <div class="supplier-card">
+      <div class="supplier-card-name">${s.name}</div>
+      <div class="supplier-card-meta">${s.cat} · ${s.skus} SKUs</div>
+      <div class="supplier-stats">
+        <div class="supplier-stat"><div class="supplier-stat-val">${s.lead}</div><div class="supplier-stat-lbl">Lead Time</div></div>
+        <div class="supplier-stat"><div class="supplier-stat-val" style="color:${color(s.onTime)}">${s.onTime}%</div><div class="supplier-stat-lbl">On-Time</div></div>
+        <div class="supplier-stat"><div class="supplier-stat-val">${s.openOrders}</div><div class="supplier-stat-lbl">Open POs</div></div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('suppliers-tbody').innerHTML = suppliers.map(s => `
+    <tr>
+      <td style="font-weight:600">${s.name}</td>
+      <td>${s.cat}</td><td>${s.skus}</td><td>${s.lead}</td>
+      <td style="color:${color(s.onTime)};font-weight:600">${s.onTime}%</td>
+      <td>${s.openOrders}</td>
+      <td><span class="badge badge-green">Active</span></td>
+    </tr>`).join('');
+}
+renderSuppliers();
+
+// ═══════════════════════════════════
+//  DEMAND PLANNING RENDER
+// ═══════════════════════════════════
+const seasonalityFactors = [
+  { cat:'Electronics', factor:1.61 },
+  { cat:'Apparel',     factor:0.92 },
+  { cat:'Grocery',     factor:1.05 },
+  { cat:'Home',        factor:1.12 },
+];
+
+function renderDemandPlanning() {
+  const sfMap = {};
+  seasonalityFactors.forEach(s => sfMap[s.cat] = s.factor);
+
+  document.getElementById('seasonality-list').innerHTML = seasonalityFactors.map(s => {
+    const pct = Math.round((s.factor - 0.7) / 1.1 * 100);
+    const c = s.factor > 1.1 ? 'var(--green)' : s.factor < 0.95 ? 'var(--red)' : 'var(--yellow)';
+    return `<div style="margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;font-weight:500">${s.cat}</span>
+        <span style="font-size:13px;font-weight:700;color:${c}">×${s.factor}</span>
+      </div>
+      <div class="factor-bar"><div class="factor-fill" style="width:${pct}%;background:${c}"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">${s.factor >= 1 ? '↑ Above baseline' : '↓ Below baseline'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('demand-tbody').innerHTML = skus.map(s => {
+    const f90 = Math.round(s.forecast * 3 * (0.95 + Math.random() * 0.12));
+    const trendStr = s.trend > 0 ? `<span class="up">↑ ${s.trend}%</span>` : s.trend < 0 ? `<span class="down">↓ ${Math.abs(s.trend)}%</span>` : `<span style="color:var(--muted)">→ 0%</span>`;
+    const sf = sfMap[s.cat] || 1;
+    const sfColor = sf > 1.1 ? 'var(--green)' : sf < 0.95 ? 'var(--red)' : 'var(--yellow)';
+    return `<tr onclick="openSKU('${s.id}')">
+      <td><div style="font-weight:600">${s.id}</div><div style="font-size:11px;color:var(--muted)">${s.name}</div></td>
+      <td>${s.cat}</td>
+      <td>${s.stock.toLocaleString()} u</td>
+      <td>${s.forecast.toLocaleString()} u</td>
+      <td>${f90.toLocaleString()} u</td>
+      <td>${trendStr}</td>
+      <td style="color:${sfColor};font-weight:600">×${sf}</td>
+      <td><button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 10px;" onclick="openSKU('${s.id}');event.stopPropagation()">Detail</button></td>
+    </tr>`;
+  }).join('');
+}
+renderDemandPlanning();
+
+(function(){
+  const labels = [];
+  const base = new Date('2026-04-01');
+  for (let i=0;i<12;i++){const d=new Date(base);d.setDate(d.getDate()+i*7);labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));}
+  new Chart(document.getElementById('dpForecastChart'),{
+    type:'line',
+    data:{labels, datasets:[
+      {label:'Electronics',data:Array.from({length:12},(_,i)=>Math.round(800+i*30+Math.random()*100)),borderColor:'#4f6ef7',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+      {label:'Apparel',    data:Array.from({length:12},(_,i)=>Math.round(620-i*5 +Math.random()*80)), borderColor:'#7c3aed',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+      {label:'Grocery',    data:Array.from({length:12},(_,i)=>Math.round(2100+i*20+Math.random()*150)),borderColor:'#22c55e',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+      {label:'Home',       data:Array.from({length:12},(_,i)=>Math.round(380+i*10+Math.random()*60)), borderColor:'#f59e0b',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2130'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2130'}}}
+    }
+  });
+})();
 </script>
 </body>
 </html>

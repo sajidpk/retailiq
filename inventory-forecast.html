@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RetailIQ — Inventory Forecasting</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --border:#2e3348;
+      --accent:#4f6ef7; --accent2:#7c3aed; --green:#22c55e; --yellow:#f59e0b;
+      --red:#ef4444; --text:#e2e8f0; --muted:#64748b; --sw:220px;
+    }
+    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); display:flex; height:100vh; overflow:hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar { width:var(--sw); background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; }
+    .logo { padding:20px 18px; font-size:18px; font-weight:700; letter-spacing:-.3px; border-bottom:1px solid var(--border); }
+    .logo span { color:var(--accent); }
+    .nav { padding:12px 0; flex:1; overflow-y:auto; }
+    .nav-section { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:14px 18px 6px; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:9px 18px; cursor:pointer; font-size:13.5px; color:var(--muted); border-left:3px solid transparent; transition:all .15s; user-select:none; }
+    .nav-item:hover { color:var(--text); background:var(--surface2); }
+    .nav-item.active { color:var(--text); border-left-color:var(--accent); background:var(--surface2); }
+    .nav-item .icon { font-size:16px; width:18px; text-align:center; }
+    .nav-badge { margin-left:auto; background:#ef4444; color:#fff; border-radius:10px; padding:1px 7px; font-size:10px; }
+    .pipeline-badge { margin:12px; background:linear-gradient(135deg,#1e2a5e,#2d1f6e); border:1px solid #3b4ba8; border-radius:10px; padding:12px; font-size:12px; }
+    .pipeline-badge .label { color:var(--muted); margin-bottom:6px; }
+    .pipeline-status { color:var(--green); font-weight:600; display:flex; align-items:center; gap:6px; }
+    .dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── Main ── */
+    .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+    /* ── Topbar ── */
+    .topbar { height:58px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:var(--surface); flex-shrink:0; }
+    .topbar-left h1 { font-size:16px; font-weight:600; }
+    .topbar-left p { font-size:12px; color:var(--muted); }
+    .topbar-right { display:flex; align-items:center; gap:10px; }
+
+    /* ── Mode Switcher ── */
+    .mode-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:4px; height:44px; flex-shrink:0; }
+    .mode-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-right:8px; }
+    .mode-btn { padding:5px 16px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12.5px; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px; }
+    .mode-btn:hover { color:var(--text); border-color:var(--accent); }
+    .mode-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+    .mode-divider { width:1px; height:20px; background:var(--border); margin:0 6px; }
+    .mode-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+
+    /* ── Buttons ── */
+    .btn { padding:7px 14px; border-radius:7px; border:none; cursor:pointer; font-size:13px; font-weight:500; transition:opacity .15s; }
+    .btn:hover { opacity:.85; }
+    .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .btn-primary { background:var(--accent); color:#fff; }
+    .btn-sm { padding:5px 11px; font-size:12px; }
+    .date-range { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:6px 12px; font-size:12.5px; color:var(--text); cursor:pointer; }
+
+    /* ── Content ── */
+    .content { flex:1; overflow-y:auto; padding:20px 24px; }
+    ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+    /* ── Pages ── */
+    .page { display:none; } .page.active { display:block; }
+
+    /* ── Cards ── */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    .card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+    .card-title { font-size:14px; font-weight:600; }
+    .card-sub { font-size:11.5px; color:var(--muted); margin-top:2px; }
+
+    /* ── KPI ── */
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+    .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+    .kpi-label { font-size:11.5px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
+    .kpi-value { font-size:26px; font-weight:700; letter-spacing:-.5px; }
+    .kpi-change { font-size:11.5px; margin-top:4px; }
+    .up{color:var(--green)} .down{color:var(--red)} .warn{color:var(--yellow)}
+
+    /* ── Pipeline row ── */
+    .pipeline-row { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:20px; }
+    .pipe-step { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; position:relative; }
+    .pipe-step::after { content:'→'; position:absolute; right:-14px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:16px; }
+    .pipe-step:last-child::after { display:none; }
+    .pipe-name { font-size:11.5px; font-weight:600; margin-bottom:4px; }
+    .pipe-detail { font-size:10.5px; color:var(--muted); }
+    .pipe-ok { border-top:2px solid var(--green); } .pipe-warn { border-top:2px solid var(--yellow); } .pipe-err { border-top:2px solid var(--red); }
+    .pipe-state { font-size:10.5px; margin-top:4px; }
+
+    /* ── Tabs ── */
+    .tabs { display:flex; gap:4px; margin-bottom:16px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:4px; width:fit-content; }
+    .tab { padding:6px 16px; border-radius:6px; font-size:13px; cursor:pointer; color:var(--muted); transition:all .15s; }
+    .tab.active { background:var(--accent); color:#fff; }
+
+    /* ── Chart row ── */
+    .chart-row { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:20px; }
+    .legend { display:flex; gap:14px; }
+    .legend-item { display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted); }
+    .legend-dot { width:8px; height:8px; border-radius:50%; }
+
+    /* ── Donut ── */
+    .donut-wrap { position:relative; width:140px; height:140px; margin:0 auto 12px; }
+    .donut-label { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
+    .donut-label .big { font-size:22px; font-weight:700; } .donut-label .small { font-size:10px; color:var(--muted); }
+    .donut-legend { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+    .donut-legend-item { font-size:11px; color:var(--muted); display:flex; align-items:center; gap:4px; }
+    .donut-legend-dot { width:7px; height:7px; border-radius:50%; }
+
+    /* ── Table ── */
+    .table-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px; }
+    .table-header { display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
+    .search-box { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 12px; font-size:13px; color:var(--text); width:200px; outline:none; }
+    .search-box::placeholder { color:var(--muted); }
+    .filter-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip { padding:5px 12px; border-radius:20px; font-size:11.5px; border:1px solid var(--border); cursor:pointer; color:var(--muted); transition:all .15s; }
+    .chip.active { border-color:var(--accent); color:var(--accent); background:rgba(79,110,247,.1); }
+    table { width:100%; border-collapse:collapse; }
+    th { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); padding:10px 18px; text-align:left; border-bottom:1px solid var(--border); font-weight:600; }
+    td { padding:12px 18px; font-size:13px; border-bottom:1px solid var(--border); }
+    tr:last-child td { border-bottom:none; }
+    tbody tr:hover td { background:var(--surface2); cursor:pointer; }
+    .stock-bar-wrap { display:flex; align-items:center; gap:8px; }
+    .stock-bar { height:5px; background:var(--border); border-radius:3px; width:80px; }
+    .stock-fill { height:100%; border-radius:3px; }
+    .badge { padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+    .badge-green { background:rgba(34,197,94,.15); color:var(--green); }
+    .badge-yellow { background:rgba(245,158,11,.15); color:var(--yellow); }
+    .badge-red { background:rgba(239,68,68,.15); color:var(--red); }
+    .trend { font-size:12px; }
+
+    /* ── Alerts ── */
+    .alert-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    .alert-item { display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); }
+    .alert-item:last-child { border-bottom:none; padding-bottom:0; }
+    .alert-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .alert-red{background:rgba(239,68,68,.15)} .alert-yellow{background:rgba(245,158,11,.15)} .alert-blue{background:rgba(79,110,247,.15)}
+    .alert-text { font-size:13px; } .alert-text strong { display:block; margin-bottom:2px; }
+    .alert-time { font-size:11px; color:var(--muted); margin-top:2px; }
+
+    /* ── View toggle (table/card/heatmap) ── */
+    .view-toggle { display:flex; gap:2px; background:var(--surface2); border-radius:7px; padding:3px; }
+    .view-btn { padding:5px 10px; border-radius:5px; font-size:12px; cursor:pointer; color:var(--muted); transition:all .15s; border:none; background:transparent; }
+    .view-btn.active { background:var(--accent); color:#fff; }
+
+    /* ── Card grid ── */
+    .sku-card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+    .sku-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:border-color .15s; }
+    .sku-card:hover { border-color:var(--accent); }
+    .sku-card-name { font-weight:600; font-size:13.5px; margin-bottom:2px; }
+    .sku-card-cat { font-size:11px; color:var(--muted); margin-bottom:12px; }
+    .sku-card-stat { display:flex; justify-content:space-between; align-items:flex-end; }
+    .sku-card-stock { font-size:22px; font-weight:700; }
+    .sku-card-label { font-size:10px; color:var(--muted); }
+    .sku-card-bar { height:4px; background:var(--border); border-radius:3px; margin:10px 0 8px; }
+    .sku-card-fill { height:100%; border-radius:3px; }
+
+    /* ── Heatmap ── */
+    .heatmap-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:6px; }
+    .heatmap-cell { border-radius:8px; padding:10px 8px; cursor:pointer; transition:transform .1s; text-align:center; }
+    .heatmap-cell:hover { transform:scale(1.04); }
+    .heatmap-cell .hm-id { font-size:9.5px; color:rgba(255,255,255,.5); }
+    .heatmap-cell .hm-pct { font-size:15px; font-weight:700; color:#fff; }
+    .hm-critical { background:#7f1d1d; } .hm-low { background:#78350f; } .hm-ok { background:#14532d; } .hm-over { background:#1e3a5f; }
+
+    /* ═══════════════════════════
+       SKU DETAIL PAGE
+    ═══════════════════════════ */
+    .back-btn { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:13px; cursor:pointer; margin-bottom:18px; width:fit-content; }
+    .back-btn:hover { color:var(--text); }
+
+    .sku-hero { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px 24px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; }
+    .sku-hero-left h2 { font-size:20px; font-weight:700; margin-bottom:4px; }
+    .sku-hero-left .meta { display:flex; gap:14px; flex-wrap:wrap; }
+    .sku-meta-item { font-size:12px; color:var(--muted); }
+    .sku-meta-item strong { color:var(--text); }
+    .sku-hero-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    .sku-stat { text-align:right; }
+    .sku-stat-val { font-size:28px; font-weight:700; letter-spacing:-.5px; }
+    .sku-stat-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+
+    .detail-grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:16px; }
+
+    .forecast-chart-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    .time-tabs { display:flex; gap:4px; }
+    .time-tab { padding:4px 12px; border-radius:6px; font-size:12px; cursor:pointer; color:var(--muted); border:1px solid transparent; }
+    .time-tab.active { border-color:var(--border); color:var(--text); background:var(--surface2); }
+    .time-tab:hover { color:var(--text); }
+
+    .reorder-box { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:14px; }
+    .reorder-rec { background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25); border-radius:10px; padding:14px; }
+    .reorder-rec.warn { background:rgba(245,158,11,.08); border-color:rgba(245,158,11,.25); }
+    .reorder-rec.crit { background:rgba(239,68,68,.08); border-color:rgba(239,68,68,.25); }
+    .rec-icon { font-size:20px; margin-bottom:6px; }
+    .rec-title { font-size:13.5px; font-weight:600; margin-bottom:4px; }
+    .rec-desc { font-size:12px; color:var(--muted); line-height:1.6; }
+    .rec-action { margin-top:10px; display:flex; gap:8px; }
+
+    .detail-bottom { display:grid; grid-template-columns:1.2fr 1fr; gap:16px; margin-bottom:16px; }
+    .history-table th, .history-table td { padding:8px 14px; font-size:12px; }
+
+    .similar-list { display:flex; flex-direction:column; gap:8px; }
+    .similar-item { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--surface2); border-radius:8px; cursor:pointer; transition:background .15s; }
+    .similar-item:hover { background:var(--border); }
+    .similar-name { font-size:13px; font-weight:500; }
+    .similar-stock { font-size:12px; color:var(--muted); }
+
+    /* ── Ops mode extras ── */
+    .ops-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+    .ops-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .ops-card-title { font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); margin-bottom:10px; }
+    .ops-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; }
+    .ops-item:last-child { border-bottom:none; }
+
+    /* Divider */
+    .row-2col { display:grid; grid-template-columns:1.6fr 1fr; gap:14px; margin-bottom:20px; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════ SIDEBAR ════════════════ -->
+<aside class="sidebar">
+  <div class="logo">Retail<span>IQ</span></div>
+  <nav class="nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" data-page="sku-explorer"><span class="icon">📦</span> SKU Explorer</div>
+    <div class="nav-item" data-page="forecast-board"><span class="icon">🔮</span> Forecast Board</div>
+    <div class="nav-item" data-page="alerts"><span class="icon">🚨</span> Alerts <span class="nav-badge">3</span></div>
+    <div class="nav-section">Data</div>
+    <div class="nav-item"><span class="icon">🔄</span> Pipeline</div>
+    <div class="nav-item"><span class="icon">⚙️</span> Settings</div>
+  </nav>
+  <div class="pipeline-badge">
+    <div class="label">Data Pipeline</div>
+    <div class="pipeline-status"><span class="dot"></span> All systems nominal</div>
+    <div style="font-size:10.5px;color:var(--muted);margin-top:6px;">Last sync: 4 min ago</div>
+  </div>
+</aside>
+
+<!-- ════════════════ MAIN ════════════════ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="page-title">Dashboard</h1>
+      <p id="page-sub">Retail Operations · Spring 2026</p>
+    </div>
+    <div class="topbar-right">
+      <div class="date-range">📅 Apr 1 – Apr 30, 2026</div>
+      <button class="btn btn-outline">Export</button>
+      <button class="btn btn-primary">+ Reorder</button>
+    </div>
+  </div>
+
+  <!-- Mode Switcher Bar -->
+  <div class="mode-bar">
+    <span class="mode-label">Mode:</span>
+    <button class="mode-btn active" data-mode="summary">📋 Summary</button>
+    <button class="mode-btn" data-mode="forecast">📈 Forecast</button>
+    <button class="mode-btn" data-mode="operations">🏭 Operations</button>
+    <div class="mode-divider"></div>
+    <div class="mode-right">
+      <span style="font-size:11.5px;color:var(--muted);" id="mode-desc">Overview of stock health & alerts</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ══════════ PAGE: DASHBOARD ══════════ -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Total SKUs</div><div class="kpi-value">4,812</div><div class="kpi-change up">↑ 2.3% vs last month</div></div>
+        <div class="kpi-card"><div class="kpi-label">Low Stock Alerts</div><div class="kpi-value warn">38</div><div class="kpi-change warn">⚠ 12 critical</div></div>
+        <div class="kpi-card"><div class="kpi-label">Forecast Accuracy</div><div class="kpi-value up">91.4%</div><div class="kpi-change up">↑ 3.1% vs last model</div></div>
+        <div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value">$2.4M</div><div class="kpi-change down">↓ 0.8% vs last week</div></div>
+      </div>
+
+      <!-- Pipeline mini row -->
+      <div class="pipeline-row">
+        <div class="pipe-step pipe-ok"><div class="pipe-name">Ingestion</div><div class="pipe-detail">ERP · Odoo · Airbyte</div><div class="pipe-state up">✓ Live</div></div>
+        <div class="pipe-step pipe-ok"><div class="pipe-name">Blob Storage</div><div class="pipe-detail">Raw files</div><div class="pipe-state up">✓ 1.2 TB</div></div>
+        <div class="pipe-step pipe-ok"><div class="pipe-name">Staging (stg_*)</div><div class="pipe-detail">PostgreSQL</div><div class="pipe-state up">✓ 4m ago</div></div>
+        <div class="pipe-step pipe-warn"><div class="pipe-name">Transform</div><div class="pipe-detail">SQL / Python</div><div class="pipe-state warn">⚠ 1 warning</div></div>
+        <div class="pipe-step pipe-ok"><div class="pipe-name">Canonical</div><div class="pipe-detail">fact_* / dim_*</div><div class="pipe-state up">✓ Ready</div></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="chart-row">
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Demand Forecast — Next 30 Days</div><div class="card-sub">Actual vs Predicted · all categories</div></div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#4f6ef7"></div>Actual</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Forecast</div>
+            </div>
+          </div>
+          <canvas id="dashForecastChart" height="175"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Stock by Category</div><div class="card-sub">Current inventory mix</div></div></div>
+          <div class="donut-wrap"><canvas id="donutChart"></canvas><div class="donut-label"><div class="big">4.8K</div><div class="small">SKUs</div></div></div>
+          <div class="donut-legend">
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#4f6ef7"></div>Apparel 32%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#7c3aed"></div>Electronics 24%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#22c55e"></div>Grocery 21%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#f59e0b"></div>Home 15%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#64748b"></div>Other 8%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table + Alerts -->
+      <div class="row-2col">
+        <div class="table-card">
+          <div class="table-header">
+            <div class="card-title">Inventory Status</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <div class="filter-row">
+                <div class="chip active">All</div><div class="chip">Critical</div><div class="chip">Low</div><div class="chip">OK</div>
+              </div>
+              <input class="search-box" placeholder="🔍  Search SKU…" />
+            </div>
+          </div>
+          <table id="dash-table">
+            <thead><tr><th>SKU / Product</th><th>Category</th><th>Stock</th><th>30D Forecast</th><th>Status</th><th>Trend</th></tr></thead>
+            <tbody id="dash-tbody"></tbody>
+          </table>
+        </div>
+        <div class="alert-panel">
+          <div class="card-header" style="margin-bottom:10px;">
+            <div><div class="card-title">Alerts & Actions</div><div class="card-sub">Real-time · Monitoring</div></div>
+            <span style="font-size:11px;color:var(--accent);cursor:pointer;">View all</span>
+          </div>
+          <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-51200 critically low</strong>Wireless Earbuds Pro: 22 units — 480 forecast.<div class="alert-time">2 min ago · Auto-reorder triggered</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-10042 reorder required</strong>Running Shoes below safety stock. Lead: 14d.<div class="alert-time">18 min ago · Pending approval</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-yellow">⚠️</div><div class="alert-text"><strong>Transform layer warning</strong>stg_orders join: 0.3% null SKUs in dim_product.<div class="alert-time">1 hr ago · Investigation needed</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-blue">📈</div><div class="alert-text"><strong>Demand spike: Electronics</strong>+61% above baseline — model retrained.<div class="alert-time">3 hr ago</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-blue">🔄</div><div class="alert-text"><strong>Snowflake sync complete</strong>4,812 SKUs refreshed from Databricks.<div class="alert-time">4 hr ago</div></div></div>
+        </div>
+      </div>
+    </div><!-- /page-dashboard -->
+
+
+    <!-- ══════════ PAGE: SKU EXPLORER ══════════ -->
+    <div class="page" id="page-sku-explorer">
+      <div class="table-header" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;padding:14px 18px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <select class="search-box" style="width:140px;cursor:pointer;"><option>All Categories</option><option>Apparel</option><option>Electronics</option><option>Grocery</option><option>Home</option></select>
+          <select class="search-box" style="width:140px;cursor:pointer;"><option>All Status</option><option>Critical</option><option>Low</option><option>Healthy</option></select>
+          <select class="search-box" style="width:140px;cursor:pointer;"><option>All Suppliers</option><option>TechCo</option><option>FabricPlus</option><option>FreshFarm</option></select>
+          <input class="search-box" placeholder="🔍  Search name or SKU…" style="width:220px;" />
+        </div>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="table">☰ Table</button>
+          <button class="view-btn" data-view="cards">⊞ Cards</button>
+          <button class="view-btn" data-view="heatmap">▦ Heatmap</button>
+        </div>
+      </div>
+
+      <!-- Table view -->
+      <div id="view-table" class="table-card">
+        <table>
+          <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th>Supplier</th><th>Stock</th><th>Safety Stock</th><th>30D Forecast</th><th>Days of Supply</th><th>Status</th><th>Trend</th></tr></thead>
+          <tbody id="explorer-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Card view -->
+      <div id="view-cards" class="sku-card-grid" style="display:none;"></div>
+
+      <!-- Heatmap view -->
+      <div id="view-heatmap" style="display:none;">
+        <div style="display:flex;gap:16px;margin-bottom:12px;align-items:center;">
+          <span style="font-size:12px;color:var(--muted);">Color = stock health</span>
+          <span style="font-size:11px;background:#7f1d1d;color:#fff;padding:3px 10px;border-radius:4px;">Critical</span>
+          <span style="font-size:11px;background:#78350f;color:#fff;padding:3px 10px;border-radius:4px;">Low</span>
+          <span style="font-size:11px;background:#14532d;color:#fff;padding:3px 10px;border-radius:4px;">Healthy</span>
+          <span style="font-size:11px;background:#1e3a5f;color:#fff;padding:3px 10px;border-radius:4px;">Overstock</span>
+        </div>
+        <div class="heatmap-grid" id="heatmap-grid"></div>
+      </div>
+    </div><!-- /page-sku-explorer -->
+
+
+    <!-- ══════════ PAGE: SKU DETAIL ══════════ -->
+    <div class="page" id="page-sku-detail">
+      <div class="back-btn" id="back-btn">← Back to SKU Explorer</div>
+
+      <!-- Hero -->
+      <div class="sku-hero">
+        <div class="sku-hero-left">
+          <h2 id="detail-name">—</h2>
+          <div class="meta" style="margin-top:8px;">
+            <div class="sku-meta-item">SKU: <strong id="detail-sku">—</strong></div>
+            <div class="sku-meta-item">Category: <strong id="detail-cat">—</strong></div>
+            <div class="sku-meta-item">Supplier: <strong id="detail-supplier">—</strong></div>
+            <div class="sku-meta-item">Lead Time: <strong id="detail-lead">—</strong></div>
+          </div>
+          <div style="margin-top:12px;">
+            <span class="badge" id="detail-badge">—</span>
+          </div>
+        </div>
+        <div class="sku-hero-stats">
+          <div class="sku-stat">
+            <div class="sku-stat-val" id="detail-stock">—</div>
+            <div class="sku-stat-lbl">Current Stock</div>
+          </div>
+          <div class="sku-stat">
+            <div class="sku-stat-val" id="detail-forecast">—</div>
+            <div class="sku-stat-lbl">30D Forecast</div>
+          </div>
+          <div class="sku-stat">
+            <div class="sku-stat-val" id="detail-dos" style="color:var(--yellow)">—</div>
+            <div class="sku-stat-lbl">Days of Supply</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Forecast chart + Reorder -->
+      <div class="detail-grid">
+        <div class="forecast-chart-card">
+          <div class="card-header">
+            <div><div class="card-title">Demand Forecast</div><div class="card-sub">Actual · Predicted · Confidence Interval</div></div>
+            <div class="time-tabs">
+              <div class="time-tab active">7D</div>
+              <div class="time-tab">30D</div>
+              <div class="time-tab">90D</div>
+            </div>
+          </div>
+          <canvas id="detailForecastChart" height="200"></canvas>
+        </div>
+
+        <div class="reorder-box">
+          <div class="card-title" style="margin-bottom:4px;">Reorder Recommendation</div>
+          <div class="card-sub" style="margin-bottom:4px;">Auto-calculated · Safety stock model</div>
+          <div class="reorder-rec crit" id="rec-box">
+            <div class="rec-icon">🚨</div>
+            <div class="rec-title" id="rec-title">Order 500 units by Apr 10</div>
+            <div class="rec-desc" id="rec-desc">Stock will hit zero in ~1.4 days based on current demand rate. Lead time is 14 days — reorder immediately.</div>
+            <div class="rec-action">
+              <button class="btn btn-primary btn-sm">Approve Order</button>
+              <button class="btn btn-outline btn-sm">Adjust Qty</button>
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Supplier info</div>
+          <div style="font-size:13px;" id="detail-supplier-info">—</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;">
+            <div class="ops-card" style="padding:12px;">
+              <div class="ops-card-title">Safety Stock</div>
+              <div style="font-size:20px;font-weight:700;" id="detail-safety">—</div>
+            </div>
+            <div class="ops-card" style="padding:12px;">
+              <div class="ops-card-title">Reorder Point</div>
+              <div style="font-size:20px;font-weight:700;" id="detail-rop">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- History + Similar -->
+      <div class="detail-bottom">
+        <div class="table-card">
+          <div class="table-header"><div class="card-title">Sales History</div></div>
+          <table class="history-table">
+            <thead><tr><th>Week</th><th>Units Sold</th><th>Forecast</th><th>Accuracy</th><th>Variance</th></tr></thead>
+            <tbody id="detail-history"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header" style="margin-bottom:10px;"><div class="card-title">Similar SKUs</div><div class="card-sub">Same category · comparable velocity</div></div>
+          <div class="similar-list" id="similar-list"></div>
+        </div>
+      </div>
+    </div><!-- /page-sku-detail -->
+
+
+    <!-- ══════════ PAGE: FORECAST BOARD ══════════ -->
+    <div class="page" id="page-forecast-board">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-title">Multi-SKU Forecast Comparison</div><div class="card-sub">Compare demand projections across SKUs</div></div>
+        <canvas id="multiForecastChart" height="220"></canvas>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Avg Forecast Accuracy</div><div class="kpi-value">91.4%</div><div class="kpi-change up">↑ across all models</div></div>
+        <div class="kpi-card"><div class="kpi-label">Highest Demand Growth</div><div class="kpi-value up">+61%</div><div class="kpi-change">SKU-51200 Electronics</div></div>
+        <div class="kpi-card"><div class="kpi-label">SKUs Needing Reorder</div><div class="kpi-value warn">12</div><div class="kpi-change warn">Within 7 days</div></div>
+        <div class="kpi-card"><div class="kpi-label">Predicted Stockouts</div><div class="kpi-value down">5</div><div class="kpi-change down">Next 14 days</div></div>
+      </div>
+    </div><!-- /page-forecast-board -->
+
+
+    <!-- ══════════ PAGE: ALERTS ══════════ -->
+    <div class="page" id="page-alerts">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+        <div class="kpi-card"><div class="kpi-label">Critical Alerts</div><div class="kpi-value down">12</div></div>
+        <div class="kpi-card"><div class="kpi-label">Warnings</div><div class="kpi-value warn">26</div></div>
+        <div class="kpi-card"><div class="kpi-label">Resolved Today</div><div class="kpi-value up">8</div></div>
+      </div>
+      <div class="alert-panel">
+        <div class="card-header" style="margin-bottom:12px;"><div class="card-title">All Alerts</div>
+          <div class="filter-row"><div class="chip active">All</div><div class="chip">Critical</div><div class="chip">Warning</div><div class="chip">Info</div></div>
+        </div>
+        <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-51200 — Critically Low</strong>22 units remaining. Forecast: 480 units demand this month. Lead time: 14 days.<div class="alert-time">2 minutes ago · Auto-reorder triggered</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-10042 — Reorder Required</strong>Men's Running Shoes below safety stock threshold (80 units). <div class="alert-time">18 minutes ago · Pending approval</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-20187 — Approaching Stockout</strong>4K Smart TV stock at 92 units. Forecast demand 310 units/month.<div class="alert-time">45 minutes ago</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">⚠️</div><div class="alert-text"><strong>Transform Layer Warning</strong>stg_orders join produced 0.3% null SKUs — check dim_product mapping.<div class="alert-time">1 hour ago · Investigation needed</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">⚠️</div><div class="alert-text"><strong>SKU-44320 — Low Stock</strong>Standing Desk Frame: 184 units. Forecast 210 units demand.<div class="alert-time">2 hours ago</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-blue">📈</div><div class="alert-text"><strong>Demand Spike — Electronics</strong>+61% above seasonal baseline. Forecast model retrained automatically.<div class="alert-time">3 hours ago</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-blue">🔄</div><div class="alert-text"><strong>Snowflake Sync Completed</strong>4,812 SKUs refreshed from Databricks feature store successfully.<div class="alert-time">4 hours ago · No action needed</div></div></div>
+      </div>
+    </div><!-- /page-alerts -->
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════
+//  DATA
+// ═══════════════════════════════════
+const skus = [
+  { id:'SKU-10042', name:"Men's Running Shoes",  cat:'Apparel',     supplier:'FabricPlus', lead:'14d', stock:48,   safety:80,  rop:200, forecast:620, status:'critical', trend:-34, dos:2.3  },
+  { id:'SKU-20187', name:'4K Smart TV 55"',       cat:'Electronics', supplier:'TechCo',     lead:'21d', stock:92,   safety:60,  rop:150, forecast:310, status:'low',      trend:12,  dos:8.9  },
+  { id:'SKU-33015', name:'Organic Coffee Blend',  cat:'Grocery',     supplier:'FreshFarm',  lead:'5d',  stock:2340, safety:300, rop:600, forecast:2100,status:'healthy',  trend:5,   dos:33.4 },
+  { id:'SKU-44320', name:'Standing Desk Frame',   cat:'Home',        supplier:'FurnCo',     lead:'30d', stock:184,  safety:100, rop:210, forecast:210, status:'low',      trend:0,   dos:26.3 },
+  { id:'SKU-51200', name:'Wireless Earbuds Pro',  cat:'Electronics', supplier:'TechCo',     lead:'14d', stock:22,   safety:50,  rop:180, forecast:480, status:'critical', trend:61,  dos:1.4  },
+  { id:'SKU-62450', name:'Yoga Mat Premium',      cat:'Apparel',     supplier:'FabricPlus', lead:'7d',  stock:870,  safety:100, rop:250, forecast:540, status:'healthy',  trend:9,   dos:48.2 },
+  { id:'SKU-71300', name:'Air Fryer XL',          cat:'Home',        supplier:'FurnCo',     lead:'18d', stock:33,   safety:40,  rop:100, forecast:290, status:'critical', trend:44,  dos:3.4  },
+  { id:'SKU-82100', name:'Protein Powder Vanilla',cat:'Grocery',     supplier:'FreshFarm',  lead:'7d',  stock:1200, safety:200, rop:400, forecast:950, status:'healthy',  trend:2,   dos:37.9 },
+];
+
+const statusColor = { critical:'var(--red)', low:'var(--yellow)', healthy:'var(--green)' };
+const statusClass = { critical:'badge-red', low:'badge-yellow', healthy:'badge-green' };
+const statusLabel = { critical:'Critical', low:'Low', healthy:'Healthy' };
+const hmClass     = { critical:'hm-critical', low:'hm-low', healthy:'hm-ok' };
+
+// ═══════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════
+const pageTitles = {
+  dashboard:     ['Dashboard',       'Retail Operations · Spring 2026'],
+  'sku-explorer':['SKU Explorer',    'Browse & search all products'],
+  'sku-detail':  ['SKU Detail',      'Forecast drill-down'],
+  'forecast-board':['Forecast Board','Compare SKUs side-by-side'],
+  alerts:        ['Alerts & Actions','Real-time monitoring'],
+};
+
+function navigate(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  document.querySelectorAll('.nav-item[data-page]').forEach(n => {
+    n.classList.toggle('active', n.dataset.page === pageId);
+  });
+  const t = pageTitles[pageId] || ['RetailIQ',''];
+  document.getElementById('page-title').textContent = t[0];
+  document.getElementById('page-sub').textContent = t[1];
+}
+
+document.querySelectorAll('.nav-item[data-page]').forEach(n => {
+  n.addEventListener('click', () => navigate(n.dataset.page));
+});
+
+// ═══════════════════════════════════
+//  MODE SWITCHER
+// ═══════════════════════════════════
+const modeDesc = {
+  summary:    'Overview of stock health & alerts',
+  forecast:   'Demand predictions with confidence bands',
+  operations: 'Reorder points, lead times & supplier actions',
+};
+document.querySelectorAll('.mode-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('mode-desc').textContent = modeDesc[b.dataset.mode];
+  });
+});
+
+// ═══════════════════════════════════
+//  DASHBOARD TABLE
+// ═══════════════════════════════════
+function renderDashTable() {
+  const tbody = document.getElementById('dash-tbody');
+  tbody.innerHTML = skus.map(s => {
+    const pct = Math.min(100, Math.round(s.stock / s.forecast * 100));
+    const trendStr = s.trend > 0 ? `<span class="trend up">↑ ${s.trend}%</span>` : s.trend < 0 ? `<span class="trend down">↓ ${Math.abs(s.trend)}%</span>` : `<span class="trend" style="color:var(--muted)">→ 0%</span>`;
+    return `<tr onclick="openSKU('${s.id}')">
+      <td><div style="font-weight:600">${s.id}</div><div style="font-size:11px;color:var(--muted)">${s.name}</div></td>
+      <td>${s.cat}</td>
+      <td><div class="stock-bar-wrap"><div class="stock-bar"><div class="stock-fill" style="width:${pct}%;background:${statusColor[s.status]}"></div></div><span style="font-size:12px">${s.stock.toLocaleString()} u</span></div></td>
+      <td>${s.forecast.toLocaleString()} u</td>
+      <td><span class="badge ${statusClass[s.status]}">${statusLabel[s.status]}</span></td>
+      <td>${trendStr}</td>
+    </tr>`;
+  }).join('');
+}
+renderDashTable();
+
+// ═══════════════════════════════════
+//  SKU EXPLORER — TABLE / CARDS / HEATMAP
+// ═══════════════════════════════════
+function renderExplorerTable() {
+  const tbody = document.getElementById('explorer-tbody');
+  tbody.innerHTML = skus.map(s => {
+    const pct = Math.min(100, Math.round(s.stock / s.forecast * 100));
+    const trendStr = s.trend > 0 ? `<span class="up">↑ ${s.trend}%</span>` : s.trend < 0 ? `<span class="down">↓ ${Math.abs(s.trend)}%</span>` : `<span style="color:var(--muted)">→</span>`;
+    return `<tr onclick="openSKU('${s.id}')">
+      <td style="font-weight:600">${s.id}</td>
+      <td>${s.name}</td><td>${s.cat}</td><td>${s.supplier}</td>
+      <td><div class="stock-bar-wrap"><div class="stock-bar"><div class="stock-fill" style="width:${pct}%;background:${statusColor[s.status]}"></div></div>${s.stock.toLocaleString()} u</div></td>
+      <td>${s.safety} u</td>
+      <td>${s.forecast.toLocaleString()} u</td>
+      <td style="color:${s.dos<7?'var(--red)':s.dos<14?'var(--yellow)':'var(--green)'}">${s.dos}d</td>
+      <td><span class="badge ${statusClass[s.status]}">${statusLabel[s.status]}</span></td>
+      <td style="font-size:12px">${trendStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderExplorerCards() {
+  const grid = document.getElementById('view-cards');
+  grid.innerHTML = skus.map(s => {
+    const pct = Math.min(100, Math.round(s.stock / s.forecast * 100));
+    return `<div class="sku-card" onclick="openSKU('${s.id}')">
+      <div class="sku-card-name">${s.name}</div>
+      <div class="sku-card-cat">${s.id} · ${s.cat}</div>
+      <div class="sku-card-bar"><div class="sku-card-fill" style="width:${pct}%;background:${statusColor[s.status]}"></div></div>
+      <div class="sku-card-stat">
+        <div><div class="sku-card-stock">${s.stock.toLocaleString()}</div><div class="sku-card-label">in stock</div></div>
+        <div style="text-align:right"><div class="sku-card-stock" style="font-size:16px;color:var(--muted)">${s.forecast.toLocaleString()}</div><div class="sku-card-label">30d forecast</div></div>
+      </div>
+      <div style="margin-top:10px"><span class="badge ${statusClass[s.status]}">${statusLabel[s.status]}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderHeatmap() {
+  const grid = document.getElementById('heatmap-grid');
+  grid.innerHTML = skus.map(s => `
+    <div class="heatmap-cell ${hmClass[s.status]}" onclick="openSKU('${s.id}')" title="${s.name}">
+      <div class="hm-id">${s.id}</div>
+      <div class="hm-pct">${s.dos}d</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:2px">${s.name.split(' ').slice(0,2).join(' ')}</div>
+    </div>`).join('');
+}
+
+renderExplorerTable(); renderExplorerCards(); renderHeatmap();
+
+// View toggle
+document.querySelectorAll('.view-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.view-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('view-table').style.display   = b.dataset.view === 'table'   ? '' : 'none';
+    document.getElementById('view-cards').style.display   = b.dataset.view === 'cards'   ? 'grid' : 'none';
+    document.getElementById('view-heatmap').style.display = b.dataset.view === 'heatmap' ? '' : 'none';
+  });
+});
+
+// ═══════════════════════════════════
+//  SKU DETAIL
+// ═══════════════════════════════════
+let detailChartInstance = null;
+
+function openSKU(id) {
+  const s = skus.find(x => x.id === id);
+  if (!s) return;
+
+  document.getElementById('detail-name').textContent = s.name;
+  document.getElementById('detail-sku').textContent  = s.id;
+  document.getElementById('detail-cat').textContent  = s.cat;
+  document.getElementById('detail-supplier').textContent = s.supplier;
+  document.getElementById('detail-lead').textContent = s.lead;
+  document.getElementById('detail-stock').textContent    = s.stock.toLocaleString() + ' u';
+  document.getElementById('detail-forecast').textContent = s.forecast.toLocaleString() + ' u';
+  document.getElementById('detail-dos').textContent  = s.dos + ' days';
+  document.getElementById('detail-dos').style.color  = s.dos < 7 ? 'var(--red)' : s.dos < 14 ? 'var(--yellow)' : 'var(--green)';
+  document.getElementById('detail-safety').textContent = s.safety + ' u';
+  document.getElementById('detail-rop').textContent    = s.rop + ' u';
+  document.getElementById('detail-supplier-info').textContent = s.supplier + ' · Lead: ' + s.lead;
+
+  const badge = document.getElementById('detail-badge');
+  badge.className = 'badge ' + statusClass[s.status];
+  badge.textContent = statusLabel[s.status];
+
+  const rec = document.getElementById('rec-box');
+  rec.className = 'reorder-rec' + (s.status === 'critical' ? ' crit' : s.status === 'low' ? ' warn' : '');
+  document.getElementById('rec-title').textContent = s.status === 'healthy'
+    ? 'Stock levels are healthy' : `Order ${Math.max(s.forecast - s.stock, 0)} units by ${s.dos < 7 ? 'immediately' : 'next week'}`;
+  document.getElementById('rec-desc').textContent = s.status === 'critical'
+    ? `Stock will deplete in ~${s.dos} days. Lead time is ${s.lead} — reorder immediately to avoid stockout.`
+    : s.status === 'low'
+    ? `Stock approaching safety threshold. Consider reordering within 7 days.`
+    : `No immediate action required. Next review in 14 days.`;
+
+  // History
+  const hist = document.getElementById('detail-history');
+  const weeks = ['Mar 10','Mar 17','Mar 24','Mar 31'];
+  hist.innerHTML = weeks.map((w,i) => {
+    const actual = Math.round(s.forecast / 4 * (0.85 + Math.random()*.3));
+    const pred   = Math.round(s.forecast / 4 * (0.9  + Math.random()*.2));
+    const acc    = Math.round(100 - Math.abs(actual-pred)/pred*100);
+    const v      = actual - pred;
+    return `<tr><td>${w}</td><td>${actual}</td><td>${pred}</td><td>${acc}%</td><td style="color:${v>0?'var(--green)':'var(--red)'}">${v>0?'+':''}${v}</td></tr>`;
+  }).join('');
+
+  // Similar
+  const sim = document.getElementById('similar-list');
+  sim.innerHTML = skus.filter(x => x.cat === s.cat && x.id !== s.id).slice(0,4).map(x =>
+    `<div class="similar-item" onclick="openSKU('${x.id}')">
+      <div><div class="similar-name">${x.name}</div><div class="similar-stock">${x.id} · ${x.stock} u in stock</div></div>
+      <span class="badge ${statusClass[x.status]}">${statusLabel[x.status]}</span>
+    </div>`).join('');
+
+  // Detail forecast chart
+  if (detailChartInstance) detailChartInstance.destroy();
+  const dLabels = [];
+  const base = new Date('2026-04-01');
+  for (let i = 0; i < 30; i++) { const d = new Date(base); d.setDate(d.getDate()+i); dLabels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'})); }
+  const dActual   = Array.from({length:10}, (_,i) => Math.round(s.forecast/30 * (0.8+Math.random()*.4))).concat(Array(20).fill(null));
+  const dForecast = Array(9).fill(null).concat(Array.from({length:21}, () => Math.round(s.forecast/30 * (0.9+Math.random()*.25))));
+  const dUpper    = dForecast.map(v => v ? Math.round(v*1.1) : null);
+  const dLower    = dForecast.map(v => v ? Math.round(v*0.9) : null);
+
+  detailChartInstance = new Chart(document.getElementById('detailForecastChart'), {
+    type:'line', data:{ labels:dLabels, datasets:[
+      { label:'CI Upper', data:dUpper, fill:'+1', borderWidth:0, pointRadius:0, backgroundColor:'rgba(79,110,247,0.12)', borderColor:'transparent' },
+      { label:'CI Lower', data:dLower, fill:false, borderWidth:0, pointRadius:0, backgroundColor:'transparent', borderColor:'transparent' },
+      { label:'Forecast', data:dForecast, borderColor:'#7c3aed', borderWidth:2, borderDash:[5,4], pointRadius:0, fill:false, tension:.4 },
+      { label:'Actual',   data:dActual,   borderColor:'#4f6ef7', borderWidth:2.5, pointRadius:3, backgroundColor:'#4f6ef7', fill:false, tension:.3 },
+    ]},
+    options:{ responsive:true, maintainAspectRatio:true, interaction:{mode:'index',intersect:false},
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#22263a', borderColor:'#2e3348', borderWidth:1, titleColor:'#e2e8f0', bodyColor:'#94a3b8' } },
+      scales:{ x:{ ticks:{color:'#64748b',font:{size:10},maxTicksLimit:8}, grid:{color:'#1e2130'} }, y:{ ticks:{color:'#64748b',font:{size:10}}, grid:{color:'#1e2130'} } }
+    }
+  });
+
+  navigate('sku-detail');
+}
+
+document.getElementById('back-btn').addEventListener('click', () => navigate('sku-explorer'));
+
+// ═══════════════════════════════════
+//  DASHBOARD FORECAST CHART
+// ═══════════════════════════════════
+(function() {
+  const labels = [];
+  const base = new Date('2026-04-01');
+  for (let i=0;i<30;i++){const d=new Date(base);d.setDate(d.getDate()+i);labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));}
+  const actual   = Array.from({length:10},()=>Math.round(3800+Math.random()*600)).concat(Array(20).fill(null));
+  const forecast = Array(9).fill(null).concat(Array.from({length:21},()=>Math.round(4000+Math.random()*700)));
+  new Chart(document.getElementById('dashForecastChart'),{
+    type:'line', data:{labels, datasets:[
+      {label:'Forecast',data:forecast,borderColor:'#7c3aed',borderWidth:2,borderDash:[5,4],pointRadius:0,fill:false,tension:.4},
+      {label:'Actual',  data:actual,  borderColor:'#4f6ef7',borderWidth:2.5,pointRadius:3,backgroundColor:'#4f6ef7',fill:false,tension:.3},
+    ]},
+    options:{ responsive:true, maintainAspectRatio:true, interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}, tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:10},maxTicksLimit:8},grid:{color:'#1e2130'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2130'}}}
+    }
+  });
+})();
+
+// ═══════════════════════════════════
+//  DONUT CHART
+// ═══════════════════════════════════
+new Chart(document.getElementById('donutChart'),{
+  type:'doughnut',
+  data:{labels:['Apparel','Electronics','Grocery','Home','Other'],datasets:[{data:[32,24,21,15,8],backgroundColor:['#4f6ef7','#7c3aed','#22c55e','#f59e0b','#334155'],borderWidth:2,borderColor:'#1a1d27',hoverOffset:6}]},
+  options:{cutout:'70%',responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1}}}
+});
+
+// ═══════════════════════════════════
+//  FORECAST BOARD CHART
+// ═══════════════════════════════════
+(function(){
+  const labels=['Week 1','Week 2','Week 3','Week 4'];
+  new Chart(document.getElementById('multiForecastChart'),{
+    type:'bar',
+    data:{labels, datasets:[
+      {label:"Running Shoes",data:[155,160,148,157],backgroundColor:'rgba(79,110,247,.7)',borderRadius:4},
+      {label:"Earbuds Pro",  data:[110,132,148,190],backgroundColor:'rgba(124,58,237,.7)',borderRadius:4},
+      {label:"Smart TV",     data:[72,78,80,80],    backgroundColor:'rgba(34,197,94,.7)', borderRadius:4},
+      {label:"Coffee Blend", data:[520,510,535,535],backgroundColor:'rgba(245,158,11,.7)',borderRadius:4},
+    ]},
+    options:{responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'}},
+      scales:{x:{ticks:{color:'#64748b'},grid:{color:'#1e2130'}},y:{ticks:{color:'#64748b'},grid:{color:'#1e2130'}}}
+    }
+  });
+})();
+
+// ═══════════════════════════════════
+//  CHIP / TAB INTERACTIONS
+// ═══════════════════════════════════
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    c.closest('.filter-row').querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    t.closest('.tabs').querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+document.querySelectorAll('.time-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    t.closest('.time-tabs').querySelectorAll('.time-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

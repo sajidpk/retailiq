@@ -3,27 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RetailIQ — Inventory Forecasting</title>
+  <title>RetailIQ — GCC FMCG Intelligence Platform</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     :root {
       --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --border:#2e3348;
-      --accent:#4f6ef7; --accent2:#7c3aed; --green:#22c55e; --yellow:#f59e0b;
-      --red:#ef4444; --text:#e2e8f0; --muted:#64748b; --sw:220px;
+      --accent:#4f6ef7; --accent2:#c9993a; --green:#22c55e; --yellow:#f59e0b;
+      --red:#ef4444; --text:#e2e8f0; --muted:#64748b; --gold:#c9993a; --sw:220px;
     }
-    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); display:flex; height:100vh; overflow:hidden; }
+    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); display:flex; height:100vh; overflow:hidden; -webkit-font-smoothing:antialiased; }
 
     /* ── Sidebar ── */
-    .sidebar { width:var(--sw); background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; }
-    .logo { padding:20px 18px; font-size:18px; font-weight:700; letter-spacing:-.3px; border-bottom:1px solid var(--border); }
-    .logo span { color:var(--accent); }
+    .sidebar { width:var(--sw); background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; box-shadow:2px 0 8px rgba(0,0,0,.4); z-index:10; }
+    .logo { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:center; background:var(--surface); }
+    .logo svg { width:172px; height:auto; display:block; }
     .nav { padding:12px 0; flex:1; overflow-y:auto; }
-    .nav-section { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:14px 18px 6px; }
-    .nav-item { display:flex; align-items:center; gap:10px; padding:9px 18px; cursor:pointer; font-size:13.5px; color:var(--muted); border-left:3px solid transparent; transition:all .15s; user-select:none; }
+    .nav-section { font-size:10px; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); padding:18px 18px 5px; opacity:.6; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:8px 18px; cursor:pointer; font-size:13px; color:var(--muted); border-left:2px solid transparent; transition:all .15s; user-select:none; letter-spacing:.1px; }
     .nav-item:hover { color:var(--text); background:var(--surface2); }
-    .nav-item.active { color:var(--text); border-left-color:var(--accent); background:var(--surface2); }
-    .nav-item .icon { font-size:16px; width:18px; text-align:center; }
+    .nav-item.active { color:var(--text); border-left-color:var(--accent); background:rgba(79,110,247,.07); font-weight:500; }
+    .nav-item .icon { font-size:13px; width:16px; text-align:center; opacity:.7; }
     .nav-badge { margin-left:auto; background:#ef4444; color:#fff; border-radius:10px; padding:1px 7px; font-size:10px; }
     .pipeline-badge { margin:12px; background:linear-gradient(135deg,#1e2a5e,#2d1f6e); border:1px solid #3b4ba8; border-radius:10px; padding:12px; font-size:12px; }
     .pipeline-badge .label { color:var(--muted); margin-bottom:6px; }
@@ -35,7 +35,7 @@
     .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
 
     /* ── Topbar ── */
-    .topbar { height:58px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:var(--surface); flex-shrink:0; }
+    .topbar { height:56px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:var(--surface); flex-shrink:0; box-shadow:0 1px 0 var(--border); }
     .topbar-left h1 { font-size:16px; font-weight:600; }
     .topbar-left p { font-size:12px; color:var(--muted); }
     .topbar-right { display:flex; align-items:center; gap:10px; }
@@ -43,17 +43,17 @@
     /* ── Mode Switcher ── */
     .mode-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:4px; height:44px; flex-shrink:0; }
     .mode-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-right:8px; }
-    .mode-btn { padding:5px 16px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12.5px; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px; }
-    .mode-btn:hover { color:var(--text); border-color:var(--accent); }
-    .mode-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+    .mode-btn { padding:5px 14px; border-radius:5px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:12px; cursor:pointer; transition:all .15s; letter-spacing:.2px; }
+    .mode-btn:hover { color:var(--text); border-color:rgba(79,110,247,.5); background:rgba(79,110,247,.06); }
+    .mode-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; box-shadow:0 1px 4px rgba(79,110,247,.4); }
     .mode-divider { width:1px; height:20px; background:var(--border); margin:0 6px; }
     .mode-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
 
     /* ── Buttons ── */
-    .btn { padding:7px 14px; border-radius:7px; border:none; cursor:pointer; font-size:13px; font-weight:500; transition:opacity .15s; }
-    .btn:hover { opacity:.85; }
+    .btn { padding:6px 14px; border-radius:6px; border:none; cursor:pointer; font-size:12.5px; font-weight:500; transition:all .15s; letter-spacing:.2px; }
+    .btn:hover { opacity:.88; transform:translateY(-1px); }
     .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
-    .btn-primary { background:var(--accent); color:#fff; }
+    .btn-primary { background:var(--accent); color:#fff; box-shadow:0 1px 4px rgba(79,110,247,.35); }
     .btn-sm { padding:5px 11px; font-size:12px; }
     .date-range { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:6px 12px; font-size:12.5px; color:var(--text); cursor:pointer; }
 
@@ -65,15 +65,15 @@
     .page { display:none; } .page.active { display:block; }
 
     /* ── Cards ── */
-    .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
     .card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
     .card-title { font-size:14px; font-weight:600; }
     .card-sub { font-size:11.5px; color:var(--muted); margin-top:2px; }
 
     /* ── KPI ── */
     .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
-    .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
-    .kpi-label { font-size:11.5px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
+    .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+    .kpi-label { font-size:11px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:.7px; font-weight:500; }
     .kpi-value { font-size:26px; font-weight:700; letter-spacing:-.5px; }
     .kpi-change { font-size:11.5px; margin-top:4px; }
     .up{color:var(--green)} .down{color:var(--red)} .warn{color:var(--yellow)}
@@ -109,7 +109,7 @@
     .donut-legend-dot { width:7px; height:7px; border-radius:50%; }
 
     /* ── Table ── */
-    .table-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:20px; }
+    .table-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
     .table-header { display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
     .search-box { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:7px 12px; font-size:13px; color:var(--text); width:200px; outline:none; }
     .search-box::placeholder { color:var(--muted); }
@@ -117,10 +117,10 @@
     .chip { padding:5px 12px; border-radius:20px; font-size:11.5px; border:1px solid var(--border); cursor:pointer; color:var(--muted); transition:all .15s; }
     .chip.active { border-color:var(--accent); color:var(--accent); background:rgba(79,110,247,.1); }
     table { width:100%; border-collapse:collapse; }
-    th { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); padding:10px 18px; text-align:left; border-bottom:1px solid var(--border); font-weight:600; }
-    td { padding:12px 18px; font-size:13px; border-bottom:1px solid var(--border); }
+    th { font-size:10.5px; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); padding:10px 18px; text-align:left; border-bottom:1px solid var(--border); font-weight:600; background:rgba(0,0,0,.1); }
+    td { padding:11px 18px; font-size:12.5px; border-bottom:1px solid var(--border); transition:background .1s; }
     tr:last-child td { border-bottom:none; }
-    tbody tr:hover td { background:var(--surface2); cursor:pointer; }
+    tbody tr:hover td { background:rgba(79,110,247,.05); cursor:pointer; }
     .stock-bar-wrap { display:flex; align-items:center; gap:8px; }
     .stock-bar { height:5px; background:var(--border); border-radius:3px; width:80px; }
     .stock-fill { height:100%; border-radius:3px; }
@@ -134,8 +134,10 @@
     .alert-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
     .alert-item { display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); }
     .alert-item:last-child { border-bottom:none; padding-bottom:0; }
-    .alert-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
-    .alert-red{background:rgba(239,68,68,.15)} .alert-yellow{background:rgba(245,158,11,.15)} .alert-blue{background:rgba(79,110,247,.15)}
+    .alert-icon { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; letter-spacing:0; }
+    .alert-red    { background:rgba(239,68,68,.12);  color:var(--red);    border:1px solid rgba(239,68,68,.25);  }
+    .alert-yellow { background:rgba(245,158,11,.12); color:var(--yellow); border:1px solid rgba(245,158,11,.25); }
+    .alert-blue   { background:rgba(79,110,247,.12); color:var(--accent); border:1px solid rgba(79,110,247,.25); }
     .alert-text { font-size:13px; } .alert-text strong { display:block; margin-bottom:2px; }
     .alert-time { font-size:11px; color:var(--muted); margin-top:2px; }
 
@@ -218,7 +220,7 @@
 
     /* ── Order / supplier extras ── */
     .badge-blue   { background:rgba(79,110,247,.15); color:var(--accent); }
-    .badge-purple { background:rgba(124,58,237,.15); color:var(--accent2); }
+    .badge-purple { background:rgba(201,153,58,.15); color:var(--gold); }
     .badge-muted  { background:var(--surface2); color:var(--muted); }
     .supplier-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin-bottom:20px; }
     .supplier-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; }
@@ -231,56 +233,171 @@
     .dp-row { display:grid; grid-template-columns:1.5fr 1fr; gap:14px; margin-bottom:20px; }
     .factor-bar { height:6px; background:var(--border); border-radius:3px; margin-top:5px; }
     .factor-fill { height:100%; border-radius:3px; }
+
+    /* ── Pipeline Status Strip ── */
+    .pipe-strip { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 20px; margin-bottom:20px; overflow-x:auto; }
+    .pipe-strip-title { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+    .pipe-stages { display:flex; align-items:flex-start; gap:0; min-width:fit-content; }
+    .pipe-stage { display:flex; flex-direction:column; align-items:center; gap:4px; min-width:88px; }
+    .pipe-stage-icon { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; border:2px solid; flex-shrink:0; }
+    .pipe-stage-icon.done { background:rgba(34,197,94,.1); border-color:var(--green); color:var(--green); }
+    .pipe-stage-icon.running { background:rgba(79,110,247,.15); border-color:var(--accent); color:var(--accent); animation:pulse 2s infinite; }
+    .pipe-stage-icon.new-done { background:rgba(124,58,237,.1); border-color:var(--accent2); color:var(--accent2); }
+    .pipe-stage-name { font-size:10px; font-weight:600; color:var(--text); text-align:center; line-height:1.3; }
+    .pipe-stage-sub { font-size:9px; color:var(--muted); text-align:center; }
+    .pipe-new-tag { font-size:8px; background:var(--accent2); color:#fff; padding:1px 5px; border-radius:3px; font-weight:700; letter-spacing:.4px; }
+    .pipe-arrow { color:var(--border); font-size:18px; margin:0 2px; padding-bottom:22px; flex-shrink:0; align-self:center; }
+
+    /* ── Risk / Optimization / Mitigation row ── */
+    .risk-opt-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:20px; }
+    .risk-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; }
+    .risk-panel-title { font-size:13px; font-weight:600; margin-bottom:4px; display:flex; align-items:center; justify-content:space-between; }
+    .risk-panel-sub { font-size:11px; color:var(--muted); margin-bottom:12px; }
+    .risk-row { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+    .risk-row:last-child { border-bottom:none; }
+    .risk-badge { padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:600; }
+    .risk-high   { background:rgba(239,68,68,.15);  color:var(--red); }
+    .risk-medium { background:rgba(245,158,11,.15); color:var(--yellow); }
+    .risk-low    { background:rgba(34,197,94,.15);  color:var(--green); }
+    .opt-item { display:flex; align-items:center; gap:10px; padding:9px 12px; background:var(--surface2); border-radius:8px; border:1px solid var(--border); font-size:12px; margin-bottom:8px; }
+    .opt-item.active-strategy { border-color:var(--accent); background:rgba(79,110,247,.08); }
+    .opt-item:last-child { margin-bottom:0; }
+    .opt-icon { font-size:15px; width:20px; text-align:center; }
+    .opt-label { font-weight:500; flex:1; }
+    .opt-count { font-size:11px; color:var(--muted); }
+    .mit-item { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+    .mit-item:last-child { border-bottom:none; }
+    .mit-val { font-weight:600; }
+    .waste-row { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+    .waste-row:last-child { border-bottom:none; }
+
+    /* ── GCC / ME region banner ── */
+    .gcc-banner { background:linear-gradient(90deg,rgba(201,153,58,.12),rgba(201,153,58,.04)); border-bottom:1px solid rgba(201,153,58,.25); padding:6px 24px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .gcc-banner-left { display:flex; align-items:center; gap:10px; }
+    .gcc-flag-strip { display:flex; gap:3px; }
+    .gcc-flag-dot { width:8px; height:8px; border-radius:50%; }
+    .gcc-label { font-size:11px; font-weight:600; color:var(--gold); letter-spacing:.6px; text-transform:uppercase; }
+    .gcc-ar { font-size:12px; color:var(--muted); font-family:'Segoe UI',Tahoma,sans-serif; }
+    .gcc-hijri { font-size:11px; color:var(--muted); direction:ltr; }
+    .gcc-currency-badge { background:rgba(201,153,58,.12); border:1px solid rgba(201,153,58,.3); border-radius:6px; padding:3px 10px; font-size:11px; color:var(--gold); font-weight:600; letter-spacing:.4px; }
+
+    /* ── SAR value styling ── */
+    .sar { color:var(--gold); font-weight:700; }
   </style>
 </head>
 <body>
 
 <!-- ════════════════ SIDEBAR ════════════════ -->
 <aside class="sidebar">
-  <div class="logo">Retail<span>IQ</span></div>
+  <div class="logo">
+    <!-- Drizzla — builder of RetailIQ -->
+    <svg viewBox="0 0 340 84" xmlns="http://www.w3.org/2000/svg" aria-label="Drizzla — Trusted. Intelligent.">
+      <defs>
+        <linearGradient id="dz-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#b04fff"/>
+          <stop offset="85%" stop-color="#9b30f0"/>
+          <stop offset="100%" stop-color="#00c8f0"/>
+        </linearGradient>
+      </defs>
+      <!-- dot ring -->
+      <g>
+        <!-- outer ring purple -->
+        <circle cx="36" cy="16" r="5.2" fill="#c060ff" opacity=".95"/>
+        <circle cx="52" cy="11" r="3.6" fill="#b04fff" opacity=".85"/>
+        <circle cx="63" cy="22" r="2.4" fill="#b04fff" opacity=".75"/>
+        <circle cx="64" cy="36" r="3.0" fill="#b04fff" opacity=".80"/>
+        <circle cx="57" cy="50" r="2.0" fill="#b04fff" opacity=".60"/>
+        <circle cx="44" cy="58" r="2.8" fill="#c060ff" opacity=".70"/>
+        <circle cx="29" cy="58" r="1.6" fill="#b04fff" opacity=".55"/>
+        <circle cx="17" cy="50" r="2.4" fill="#b04fff" opacity=".65"/>
+        <circle cx="12" cy="36" r="3.2" fill="#c060ff" opacity=".80"/>
+        <circle cx="15" cy="22" r="2.0" fill="#b04fff" opacity=".60"/>
+        <circle cx="24" cy="12" r="2.6" fill="#b04fff" opacity=".70"/>
+        <!-- inner ring -->
+        <circle cx="38" cy="26" r="3.8" fill="#c878ff" opacity=".90"/>
+        <circle cx="50" cy="24" r="2.4" fill="#b04fff" opacity=".75"/>
+        <circle cx="54" cy="36" r="2.0" fill="#b04fff" opacity=".65"/>
+        <circle cx="48" cy="47" r="2.6" fill="#c060ff" opacity=".80"/>
+        <circle cx="36" cy="50" r="1.8" fill="#b04fff" opacity=".55"/>
+        <circle cx="25" cy="45" r="2.2" fill="#b04fff" opacity=".65"/>
+        <circle cx="21" cy="34" r="2.8" fill="#c060ff" opacity=".75"/>
+        <circle cx="25" cy="23" r="2.0" fill="#b04fff" opacity=".60"/>
+        <!-- cyan accents -->
+        <circle cx="60" cy="14" r="3.0" fill="#00d4f5" opacity=".90"/>
+        <circle cx="13" cy="46" r="2.2" fill="#00c8f0" opacity=".80"/>
+        <circle cx="34" cy="60" r="1.8" fill="#00c8f0" opacity=".70"/>
+      </g>
+      <!-- wordmark -->
+      <text x="82" y="46" font-family="'Segoe UI',system-ui,sans-serif" font-size="28" font-weight="800" letter-spacing="3" fill="url(#dz-grad)">DRIZZLA</text>
+      <!-- tagline -->
+      <text x="83" y="62" font-family="'Segoe UI',system-ui,sans-serif" font-size="9.5" letter-spacing="2.2" fill="#64748b">TRUSTED. INTELLIGENT.</text>
+    </svg>
+  </div>
   <nav class="nav">
     <div class="nav-section">Main</div>
-    <div class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</div>
-    <div class="nav-item" data-page="sku-explorer"><span class="icon">📦</span> SKU Explorer</div>
-    <div class="nav-item" data-page="forecast-board"><span class="icon">🔮</span> Forecast Board</div>
-    <div class="nav-item" data-page="alerts"><span class="icon">🚨</span> Alerts <span class="nav-badge">3</span></div>
+    <div class="nav-item active" data-page="dashboard"><span class="icon">◈</span> Dashboard</div>
+    <div class="nav-item" data-page="sku-explorer"><span class="icon">◉</span> SKU Explorer</div>
+    <div class="nav-item" data-page="forecast-board"><span class="icon">◈</span> Forecast Board</div>
+    <div class="nav-item" data-page="alerts"><span class="icon">▲</span> Alerts <span class="nav-badge">5</span></div>
     <div class="nav-section">Planning</div>
-    <div class="nav-item" data-page="replenishment"><span class="icon">🛒</span> Replenishment</div>
-    <div class="nav-item" data-page="suppliers"><span class="icon">🏭</span> Suppliers</div>
-    <div class="nav-item" data-page="demand-planning"><span class="icon">📉</span> Demand Planning</div>
+    <div class="nav-item" data-page="replenishment"><span class="icon">◻</span> Replenishment</div>
+    <div class="nav-item" data-page="suppliers"><span class="icon">◎</span> Suppliers</div>
+    <div class="nav-item" data-page="demand-planning"><span class="icon">≈</span> Demand Planning</div>
     <div class="nav-section">Data</div>
-    <div class="nav-item"><span class="icon">🔄</span> Pipeline</div>
-    <div class="nav-item"><span class="icon">⚙️</span> Settings</div>
+    <div class="nav-item"><span class="icon">↺</span> Pipeline</div>
+    <div class="nav-item"><span class="icon">⊡</span> Settings</div>
   </nav>
   <div class="pipeline-badge">
-    <div class="label">Data Pipeline</div>
+    <div class="label">AI Pipeline · GCC FMCG</div>
     <div class="pipeline-status"><span class="dot"></span> All systems nominal</div>
-    <div style="font-size:10.5px;color:var(--muted);margin-top:6px;">Last sync: 4 min ago</div>
+    <div style="font-size:10.5px;color:var(--muted);margin-top:4px;">Risk: 2 high · 3 medium</div>
+    <div style="font-size:10.5px;color:var(--gold);margin-top:2px;">SAR · Shawwal 1447H</div>
   </div>
 </aside>
 
 <!-- ════════════════ MAIN ════════════════ -->
 <div class="main">
 
+  <!-- GCC Region Banner -->
+  <div class="gcc-banner">
+    <div class="gcc-banner-left">
+      <div class="gcc-flag-strip">
+        <div class="gcc-flag-dot" style="background:#006c35;" title="Saudi Arabia"></div>
+        <div class="gcc-flag-dot" style="background:#ef4444;" title="UAE"></div>
+        <div class="gcc-flag-dot" style="background:#007a3d;" title="Kuwait"></div>
+        <div class="gcc-flag-dot" style="background:#ce1126;" title="Qatar"></div>
+        <div class="gcc-flag-dot" style="background:#dc143c;" title="Bahrain"></div>
+        <div class="gcc-flag-dot" style="background:#db161b;" title="Oman"></div>
+      </div>
+      <span class="gcc-label">GCC Region</span>
+      <span style="color:var(--border);font-size:10px;">|</span>
+      <span class="gcc-hijri">Post-Eid Season · Shawwal 1447H</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="gcc-hijri">Currency: Saudi Riyal</span>
+      <div class="gcc-currency-badge">SAR</div>
+    </div>
+  </div>
+
   <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-left">
       <h1 id="page-title">Dashboard</h1>
-      <p id="page-sub">Retail Operations · Spring 2026</p>
+      <p id="page-sub">GCC FMCG Operations · Apr 2026</p>
     </div>
     <div class="topbar-right">
-      <div class="date-range">📅 Apr 1 – Apr 30, 2026</div>
+      <div class="date-range">01/04/2026 – 30/04/2026</div>
       <button class="btn btn-outline">Export</button>
-      <button class="btn btn-primary">+ Reorder</button>
+      <button class="btn btn-primary">+ New Order</button>
     </div>
   </div>
 
   <!-- Mode Switcher Bar -->
   <div class="mode-bar">
     <span class="mode-label">Mode:</span>
-    <button class="mode-btn active" data-mode="summary">📋 Summary</button>
-    <button class="mode-btn" data-mode="forecast">📈 Forecast</button>
-    <button class="mode-btn" data-mode="operations">🏭 Operations</button>
+    <button class="mode-btn active" data-mode="summary">Summary</button>
+    <button class="mode-btn" data-mode="forecast">Forecast</button>
+    <button class="mode-btn" data-mode="operations">Operations</button>
     <div class="mode-divider"></div>
     <div class="mode-right">
       <span style="font-size:11.5px;color:var(--muted);" id="mode-desc">Overview of stock health & alerts</span>
@@ -295,47 +412,65 @@
 
       <!-- KPIs -->
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total SKUs</div><div class="kpi-value">4,812</div><div class="kpi-change up">↑ 2.3% vs last month</div></div>
-        <div class="kpi-card"><div class="kpi-label">Low Stock Alerts</div><div class="kpi-value warn">38</div><div class="kpi-change warn">⚠ 12 critical</div></div>
+        <div class="kpi-card"><div class="kpi-label">Active FMCG SKUs</div><div class="kpi-value">4,812</div><div class="kpi-change up">↑ 2.3% vs last month</div></div>
+        <div class="kpi-card"><div class="kpi-label">High-Risk Items</div><div class="kpi-value down">2</div><div class="kpi-change warn">⚠ 3 medium-risk</div></div>
         <div class="kpi-card"><div class="kpi-label">Forecast Accuracy</div><div class="kpi-value up">91.4%</div><div class="kpi-change up">↑ 3.1% vs last model</div></div>
-        <div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value">$2.4M</div><div class="kpi-change down">↓ 0.8% vs last week</div></div>
+        <div class="kpi-card"><div class="kpi-label">Waste Reduction</div><div class="kpi-value up">18.2%</div><div class="kpi-change up">↑ vs baseline plan</div></div>
       </div>
 
-      <!-- Model Performance Strip -->
-      <div class="model-strip">
-        <div class="model-tile model-tile-main">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
-            <span class="dot"></span>
-            <span style="font-size:11px;font-weight:600;color:#a5b4fc;">Model Live</span>
+      <!-- Pipeline Status Strip -->
+      <div class="pipe-strip">
+        <div class="pipe-strip-title">
+          <span class="dot"></span> AI Pipeline · RetailIQ Forecast v2.4 · LSTM + XGBoost ensemble · Last run: 4 min ago
+        </div>
+        <div class="pipe-stages">
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon done">✓</div>
+            <div class="pipe-stage-name">Fetch Active<br>Model</div>
+            <div class="pipe-stage-sub">v2.4 · Live</div>
           </div>
-          <div style="font-size:14px;font-weight:700;">RetailIQ Forecast v2.4</div>
-          <div style="font-size:10.5px;color:#818cf8;margin-top:3px;">LSTM + XGBoost ensemble</div>
-        </div>
-        <div class="model-tile">
-          <div class="model-tile-label">Forecast Accuracy</div>
-          <div class="model-tile-value up">91.4%</div>
-          <div class="model-acc-bar"><div class="model-acc-fill" style="width:91.4%"></div></div>
-          <div class="model-tile-sub up">↑ 3.1% vs prior run</div>
-        </div>
-        <div class="model-tile">
-          <div class="model-tile-label">Last Trained</div>
-          <div class="model-tile-value">2h ago</div>
-          <div class="model-tile-sub" style="color:var(--muted);">Apr 9 · 07:42 UTC</div>
-        </div>
-        <div class="model-tile">
-          <div class="model-tile-label">Data Freshness</div>
-          <div class="model-tile-value up">4m ago</div>
-          <div class="model-tile-sub" style="color:var(--muted);">4,812 SKUs synced</div>
-        </div>
-        <div class="model-tile">
-          <div class="model-tile-label">Prediction Drift</div>
-          <div class="model-tile-value" style="color:var(--yellow);">0.02%</div>
-          <div class="model-tile-sub warn">⚠ Monitor</div>
-        </div>
-        <div class="model-tile">
-          <div class="model-tile-label">Next Retrain</div>
-          <div class="model-tile-value">6h</div>
-          <div class="model-tile-sub" style="color:var(--muted);">Scheduled · Auto</div>
+          <div class="pipe-arrow">›</div>
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon done">✓</div>
+            <div class="pipe-stage-name">Fetch<br>Forecast</div>
+            <div class="pipe-stage-sub">4,812 SKUs</div>
+          </div>
+          <div class="pipe-arrow">›</div>
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon done">✓</div>
+            <div class="pipe-stage-name">Compute<br>Baseline Plan</div>
+            <div class="pipe-stage-sub">91.4% acc.</div>
+          </div>
+          <div class="pipe-arrow">›</div>
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon new-done">✓</div>
+            <div class="pipe-stage-name">Risk Assessment<br>Engine</div>
+            <div class="pipe-stage-sub"><span class="pipe-new-tag">NEW</span> 2 high-risk</div>
+          </div>
+          <div class="pipe-arrow">›</div>
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon done">✓</div>
+            <div class="pipe-stage-name">Optimization<br>Agent (OR-Tools)</div>
+            <div class="pipe-stage-sub">Orders generated</div>
+          </div>
+          <div class="pipe-arrow">›</div>
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon new-done">✓</div>
+            <div class="pipe-stage-name">Mitigation<br>Strategy Engine</div>
+            <div class="pipe-stage-sub"><span class="pipe-new-tag">NEW</span> Buffers set</div>
+          </div>
+          <div class="pipe-arrow">›</div>
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon done">✓</div>
+            <div class="pipe-stage-name">Waste<br>Comparison</div>
+            <div class="pipe-stage-sub">−18.2% waste</div>
+          </div>
+          <div class="pipe-arrow">›</div>
+          <div class="pipe-stage">
+            <div class="pipe-stage-icon done">📤</div>
+            <div class="pipe-stage-name">Return Response</div>
+            <div class="pipe-stage-sub">+Risk Insights</div>
+          </div>
         </div>
       </div>
 
@@ -343,7 +478,7 @@
       <div class="chart-row">
         <div class="card">
           <div class="card-header">
-            <div><div class="card-title">Demand Forecast — Next 30 Days</div><div class="card-sub">Actual vs Predicted · all categories</div></div>
+            <div><div class="card-title">Demand Forecast — Next 30 Days</div><div class="card-sub">Actual vs Predicted · GCC FMCG · Shawwal 1447H</div></div>
             <div class="legend">
               <div class="legend-item"><div class="legend-dot" style="background:#4f6ef7"></div>Actual</div>
               <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Forecast</div>
@@ -352,15 +487,74 @@
           <canvas id="dashForecastChart" height="175"></canvas>
         </div>
         <div class="card">
-          <div class="card-header"><div><div class="card-title">Stock by Category</div><div class="card-sub">Current inventory mix</div></div></div>
+          <div class="card-header"><div><div class="card-title">Stock by Category</div><div class="card-sub">GCC FMCG inventory mix</div></div></div>
           <div class="donut-wrap"><canvas id="donutChart"></canvas><div class="donut-label"><div class="big">4.8K</div><div class="small">SKUs</div></div></div>
           <div class="donut-legend">
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#4f6ef7"></div>Apparel 32%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#7c3aed"></div>Electronics 24%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#22c55e"></div>Grocery 21%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#f59e0b"></div>Home 15%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#64748b"></div>Other 8%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#4f6ef7"></div>Beverages 28%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#22c55e"></div>Dairy 22%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#f59e0b"></div>Snacks 19%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#7c3aed"></div>Personal Care 14%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#06b6d4"></div>Household 10%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#64748b"></div>Frozen 7%</div>
           </div>
+        </div>
+      </div>
+
+      <!-- Risk Assessment / Optimization Agent / Mitigation Strategy -->
+      <div class="risk-opt-row">
+
+        <!-- Risk Assessment Engine -->
+        <div class="risk-panel">
+          <div class="risk-panel-title">Risk Assessment Engine <span class="pipe-new-tag" style="font-size:9px;">NEW</span></div>
+          <div class="risk-panel-sub">forecast_confidence + demand volatility → risk_level</div>
+          <div class="risk-row"><span>Almarai Mango Juice 1L</span><span class="risk-badge risk-high">High</span></div>
+          <div class="risk-row"><span>Americana Nuggets 400g</span><span class="risk-badge risk-high">High</span></div>
+          <div class="risk-row"><span>Almarai Full Cream Milk</span><span class="risk-badge risk-medium">Medium</span></div>
+          <div class="risk-row"><span>Almarai Laban 1L</span><span class="risk-badge risk-medium">Medium</span></div>
+          <div class="risk-row"><span>Oreo Original 154g</span><span class="risk-badge risk-medium">Medium</span></div>
+          <div class="risk-row"><span>All others (5 SKUs)</span><span class="risk-badge risk-low">Low</span></div>
+        </div>
+
+        <!-- Optimization Agent -->
+        <div class="risk-panel">
+          <div class="risk-panel-title">Optimization Agent <span style="font-size:10px;color:var(--muted);font-weight:400;">(OR-Tools)</span></div>
+          <div class="risk-panel-sub">Constraints adjusted per risk_level · optimized_order generated</div>
+          <div class="opt-item active-strategy">
+            <span class="opt-icon">🛡️</span>
+            <span class="opt-label">Conservative Order</span>
+            <span class="opt-count">2 SKUs · High risk</span>
+          </div>
+          <div class="opt-item">
+            <span class="opt-icon">⚡</span>
+            <span class="opt-label">Moderate Order</span>
+            <span class="opt-count">3 SKUs · Medium risk</span>
+          </div>
+          <div class="opt-item">
+            <span class="opt-icon">🚀</span>
+            <span class="opt-label">Aggressive Optimization</span>
+            <span class="opt-count">5 SKUs · Low risk</span>
+          </div>
+          <div style="margin-top:12px;padding:8px 10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;font-size:11.5px;">
+            <span style="color:var(--green);font-weight:600;">✓ optimized_order generated</span>
+            <span style="color:var(--muted);"> · 10 POs queued</span>
+          </div>
+        </div>
+
+        <!-- Mitigation Strategy Engine -->
+        <div class="risk-panel">
+          <div class="risk-panel-title">Mitigation Strategy Engine <span class="pipe-new-tag" style="font-size:9px;">NEW</span></div>
+          <div class="risk-panel-sub">Safety stock · buffer adjustments · best/worst case plans</div>
+          <div class="mit-item"><span>Safety Stock Rec.</span><span class="mit-val up">+12% buffer</span></div>
+          <div class="mit-item"><span>Buffer Adjustment</span><span class="mit-val warn">+2d cover (high-risk)</span></div>
+          <div class="mit-item">
+            <span>Best-case plan</span>
+            <span class="mit-val up">−21% waste</span>
+          </div>
+          <div class="mit-item">
+            <span>Worst-case plan</span>
+            <span class="mit-val down">+8% overstock</span>
+          </div>
+          <div class="mit-item"><span>Waste Comparison</span><span class="mit-val up">−18.2% vs baseline</span></div>
         </div>
       </div>
 
@@ -373,7 +567,7 @@
               <div class="filter-row">
                 <div class="chip active">All</div><div class="chip">Critical</div><div class="chip">Low</div><div class="chip">OK</div>
               </div>
-              <input class="search-box" placeholder="🔍  Search SKU…" />
+              <input class="search-box" placeholder="Search SKU…" />
             </div>
           </div>
           <table id="dash-table">
@@ -383,14 +577,14 @@
         </div>
         <div class="alert-panel">
           <div class="card-header" style="margin-bottom:10px;">
-            <div><div class="card-title">Alerts & Actions</div><div class="card-sub">Real-time · Monitoring</div></div>
+            <div><div class="card-title">Alerts & Actions</div><div class="card-sub">Real-time · GCC Region Monitoring</div></div>
             <span style="font-size:11px;color:var(--accent);cursor:pointer;">View all</span>
           </div>
-          <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-51200 critically low</strong>Wireless Earbuds Pro: 22 units — 480 forecast.<div class="alert-time">2 min ago · Auto-reorder triggered</div></div></div>
-          <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-10042 reorder required</strong>Running Shoes below safety stock. Lead: 14d.<div class="alert-time">18 min ago · Pending approval</div></div></div>
-          <div class="alert-item"><div class="alert-icon alert-yellow">⚠️</div><div class="alert-text"><strong>Transform layer warning</strong>stg_orders join: 0.3% null SKUs in dim_product.<div class="alert-time">1 hr ago · Investigation needed</div></div></div>
-          <div class="alert-item"><div class="alert-icon alert-blue">📈</div><div class="alert-text"><strong>Demand spike: Electronics</strong>+61% above baseline — model retrained.<div class="alert-time">3 hr ago</div></div></div>
-          <div class="alert-item"><div class="alert-icon alert-blue">🔄</div><div class="alert-text"><strong>Snowflake sync complete</strong>4,812 SKUs refreshed from Databricks.<div class="alert-time">4 hr ago</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-BEV-002 — Almarai Mango Juice 1L</strong>420 units · 3,200 forecast · conf 72% · conservative order queued.<div class="alert-time">2 min ago · Auto-reorder triggered</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-FRZ-001 — Americana Chicken Nuggets 400g</strong>280 units below safety stock (350). Lead: 4d. Post-Eid demand spike +34%.<div class="alert-time">8 min ago · Conservative order approved</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-001 — Almarai Full Cream Milk 1L</strong>2,200 units · 12.2 days of supply · buffer +2d applied by mitigation engine.<div class="alert-time">22 min ago · Monitoring</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-blue">INFO</div><div class="alert-text"><strong>Demand spike: Beverages & Dairy</strong>Post-Eid seasonal surge +38% on Vimto, +29% on Almarai Juice — Risk Assessment updated.<div class="alert-time">1 hr ago · Model retrained</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-blue">SYNC</div><div class="alert-text"><strong>Pipeline run complete</strong>4,812 ME FMCG SKUs processed · Risk Insights returned · 18.2% waste reduction vs baseline.<div class="alert-time">4 min ago</div></div></div>
         </div>
       </div>
     </div><!-- /page-dashboard -->
@@ -400,15 +594,15 @@
     <div class="page" id="page-sku-explorer">
       <div class="table-header" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;padding:14px 18px;">
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <select class="search-box" style="width:140px;cursor:pointer;"><option>All Categories</option><option>Apparel</option><option>Electronics</option><option>Grocery</option><option>Home</option></select>
+          <select class="search-box" style="width:150px;cursor:pointer;"><option>All Categories</option><option>Beverages</option><option>Dairy</option><option>Snacks</option><option>Personal Care</option><option>Household</option><option>Frozen Foods</option></select>
           <select class="search-box" style="width:140px;cursor:pointer;"><option>All Status</option><option>Critical</option><option>Low</option><option>Healthy</option></select>
-          <select class="search-box" style="width:140px;cursor:pointer;"><option>All Suppliers</option><option>TechCo</option><option>FabricPlus</option><option>FreshFarm</option></select>
-          <input class="search-box" placeholder="🔍  Search name or SKU…" style="width:220px;" />
+          <select class="search-box" style="width:150px;cursor:pointer;"><option>All Suppliers</option><option>CocaCola Dist.</option><option>Red Bull Dist.</option><option>FreshDairy Co.</option><option>PepsiCo Dist.</option><option>Mondelez Dist.</option><option>P&G Dist.</option><option>McCain Foods</option></select>
+          <input class="search-box" placeholder="Search product or SKU…" style="width:220px;" />
         </div>
         <div class="view-toggle">
-          <button class="view-btn active" data-view="table">☰ Table</button>
-          <button class="view-btn" data-view="cards">⊞ Cards</button>
-          <button class="view-btn" data-view="heatmap">▦ Heatmap</button>
+          <button class="view-btn active" data-view="table">Table</button>
+          <button class="view-btn" data-view="cards">Cards</button>
+          <button class="view-btn" data-view="heatmap">Heatmap</button>
         </div>
       </div>
 
@@ -489,7 +683,6 @@
           <div class="card-title" style="margin-bottom:4px;">Reorder Recommendation</div>
           <div class="card-sub" style="margin-bottom:4px;">Auto-calculated · Safety stock model</div>
           <div class="reorder-rec crit" id="rec-box">
-            <div class="rec-icon">🚨</div>
             <div class="rec-title" id="rec-title">Order 500 units by Apr 10</div>
             <div class="rec-desc" id="rec-desc">Stock will hit zero in ~1.4 days based on current demand rate. Lead time is 14 days — reorder immediately.</div>
             <div class="rec-action">
@@ -538,10 +731,10 @@
         <canvas id="multiForecastChart" height="220"></canvas>
       </div>
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Avg Forecast Accuracy</div><div class="kpi-value">91.4%</div><div class="kpi-change up">↑ across all models</div></div>
-        <div class="kpi-card"><div class="kpi-label">Highest Demand Growth</div><div class="kpi-value up">+61%</div><div class="kpi-change">SKU-51200 Electronics</div></div>
-        <div class="kpi-card"><div class="kpi-label">SKUs Needing Reorder</div><div class="kpi-value warn">12</div><div class="kpi-change warn">Within 7 days</div></div>
-        <div class="kpi-card"><div class="kpi-label">Predicted Stockouts</div><div class="kpi-value down">5</div><div class="kpi-change down">Next 14 days</div></div>
+        <div class="kpi-card"><div class="kpi-label">Avg Forecast Accuracy</div><div class="kpi-value">91.4%</div><div class="kpi-change up">↑ across all FMCG models</div></div>
+        <div class="kpi-card"><div class="kpi-label">Highest Demand Growth</div><div class="kpi-value up">+38%</div><div class="kpi-change">Vimto · Post-Eid surge</div></div>
+        <div class="kpi-card"><div class="kpi-label">SKUs Needing Reorder</div><div class="kpi-value warn">5</div><div class="kpi-change warn">Within 7 days</div></div>
+        <div class="kpi-card"><div class="kpi-label">Predicted Stockouts</div><div class="kpi-value down">2</div><div class="kpi-change down">Next 7 days · High-risk</div></div>
       </div>
     </div><!-- /page-forecast-board -->
 
@@ -549,21 +742,21 @@
     <!-- ══════════ PAGE: ALERTS ══════════ -->
     <div class="page" id="page-alerts">
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
-        <div class="kpi-card"><div class="kpi-label">Critical Alerts</div><div class="kpi-value down">12</div></div>
-        <div class="kpi-card"><div class="kpi-label">Warnings</div><div class="kpi-value warn">26</div></div>
-        <div class="kpi-card"><div class="kpi-label">Resolved Today</div><div class="kpi-value up">8</div></div>
+        <div class="kpi-card"><div class="kpi-label">High-Risk Alerts</div><div class="kpi-value down">2</div><div class="kpi-change down">Conservative orders queued</div></div>
+        <div class="kpi-card"><div class="kpi-label">Medium-Risk Warnings</div><div class="kpi-value warn">3</div><div class="kpi-change warn">Buffers applied</div></div>
+        <div class="kpi-card"><div class="kpi-label">Resolved Today</div><div class="kpi-value up">4</div><div class="kpi-change up">↑ Pipeline auto-handled</div></div>
       </div>
       <div class="alert-panel">
         <div class="card-header" style="margin-bottom:12px;"><div class="card-title">All Alerts</div>
           <div class="filter-row"><div class="chip active">All</div><div class="chip">Critical</div><div class="chip">Warning</div><div class="chip">Info</div></div>
         </div>
-        <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-51200 — Critically Low</strong>22 units remaining. Forecast: 480 units demand this month. Lead time: 14 days.<div class="alert-time">2 minutes ago · Auto-reorder triggered</div></div></div>
-        <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-10042 — Reorder Required</strong>Men's Running Shoes below safety stock threshold (80 units). <div class="alert-time">18 minutes ago · Pending approval</div></div></div>
-        <div class="alert-item"><div class="alert-icon alert-red">🚨</div><div class="alert-text"><strong>SKU-20187 — Approaching Stockout</strong>4K Smart TV stock at 92 units. Forecast demand 310 units/month.<div class="alert-time">45 minutes ago</div></div></div>
-        <div class="alert-item"><div class="alert-icon alert-yellow">⚠️</div><div class="alert-text"><strong>Transform Layer Warning</strong>stg_orders join produced 0.3% null SKUs — check dim_product mapping.<div class="alert-time">1 hour ago · Investigation needed</div></div></div>
-        <div class="alert-item"><div class="alert-icon alert-yellow">⚠️</div><div class="alert-text"><strong>SKU-44320 — Low Stock</strong>Standing Desk Frame: 184 units. Forecast 210 units demand.<div class="alert-time">2 hours ago</div></div></div>
-        <div class="alert-item"><div class="alert-icon alert-blue">📈</div><div class="alert-text"><strong>Demand Spike — Electronics</strong>+61% above seasonal baseline. Forecast model retrained automatically.<div class="alert-time">3 hours ago</div></div></div>
-        <div class="alert-item"><div class="alert-icon alert-blue">🔄</div><div class="alert-text"><strong>Snowflake Sync Completed</strong>4,812 SKUs refreshed from Databricks feature store successfully.<div class="alert-time">4 hours ago · No action needed</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-BEV-002 — Almarai Mango Juice 1L</strong>420 units remaining. Forecast: 3,200 units. Confidence 72%. Post-Eid demand volatility high. Conservative order auto-triggered.<div class="alert-time">2 minutes ago · Conservative order queued</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-FRZ-001 — Americana Chicken Nuggets 400g</strong>280 units — below safety stock (350). Lead: 4d. Demand trend +34%. Mitigation: +2d buffer cover applied.<div class="alert-time">8 minutes ago · Approved</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-001 — Almarai Full Cream Milk 1L</strong>12.2 days of supply. Confidence 85%. Safety stock buffer increased to 600 units by Mitigation Engine.<div class="alert-time">22 minutes ago · Monitoring</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-SNK-002 — Oreo Original 154g</strong>390 units · 5.6 days supply. Seasonal demand spike +21%. Moderate order strategy applied.<div class="alert-time">35 minutes ago · Order pending</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-002 — Almarai Laban 1L</strong>780 units · 8.4 days supply. Short shelf life — Mitigation Engine flagged worst-case overstock risk.<div class="alert-time">1 hour ago · Review recommended</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-blue">INFO</div><div class="alert-text"><strong>Post-Eid Demand Surge — Beverages & Dairy</strong>+38% Vimto, +29% Almarai Juice above seasonal ME baseline. Risk Assessment Engine upgraded both to HIGH. Model retrained.<div class="alert-time">1 hour ago</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-blue">SYNC</div><div class="alert-text"><strong>Full Pipeline Run Completed</strong>4,812 ME FMCG SKUs · Risk Assessment + Optimization + Mitigation complete · 18.2% waste reduction vs baseline returned.<div class="alert-time">4 minutes ago · No action needed</div></div></div>
       </div>
     </div><!-- /page-alerts -->
 
@@ -571,8 +764,8 @@
     <div class="page" id="page-replenishment">
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label">Open Orders</div><div class="kpi-value">5</div><div class="kpi-change warn">2 need approval</div></div>
-        <div class="kpi-card"><div class="kpi-label">Pending Approval</div><div class="kpi-value warn">2</div><div class="kpi-change">Value $72.3K</div></div>
-        <div class="kpi-card"><div class="kpi-label">In Transit</div><div class="kpi-value up">1</div><div class="kpi-change up">ETA Apr 23</div></div>
+        <div class="kpi-card"><div class="kpi-label">Pending Approval</div><div class="kpi-value warn">2</div><div class="kpi-change">SAR 93,000</div></div>
+        <div class="kpi-card"><div class="kpi-label">In Transit</div><div class="kpi-value up">1</div><div class="kpi-change up">ETA Apr 22</div></div>
         <div class="kpi-card"><div class="kpi-label">Delivered This Month</div><div class="kpi-value up">1</div><div class="kpi-change up">↑ On schedule</div></div>
       </div>
       <div class="table-card" style="margin-top:20px;">
@@ -596,10 +789,10 @@
     <!-- ══════════ PAGE: SUPPLIERS ══════════ -->
     <div class="page" id="page-suppliers">
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Suppliers</div><div class="kpi-value">4</div><div class="kpi-change up">All active</div></div>
-        <div class="kpi-card"><div class="kpi-label">Avg Lead Time</div><div class="kpi-value">14d</div><div class="kpi-change warn">FurnCo at 30d</div></div>
-        <div class="kpi-card"><div class="kpi-label">Avg On-Time Rate</div><div class="kpi-value up">90.3%</div><div class="kpi-change up">↑ vs last quarter</div></div>
-        <div class="kpi-card"><div class="kpi-label">Open POs</div><div class="kpi-value">5</div><div class="kpi-change">Across 3 suppliers</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Suppliers</div><div class="kpi-value">7</div><div class="kpi-change up">All active</div></div>
+        <div class="kpi-card"><div class="kpi-label">Avg Lead Time</div><div class="kpi-value">4.4d</div><div class="kpi-change up">↓ vs last quarter</div></div>
+        <div class="kpi-card"><div class="kpi-label">Avg On-Time Rate</div><div class="kpi-value up">94.1%</div><div class="kpi-change up">↑ vs last quarter</div></div>
+        <div class="kpi-card"><div class="kpi-label">Open POs</div><div class="kpi-value">6</div><div class="kpi-change">Across 5 suppliers</div></div>
       </div>
       <div class="supplier-grid" id="supplier-grid" style="margin-top:20px;"></div>
       <div class="table-card">
@@ -616,9 +809,9 @@
     <div class="page" id="page-demand-planning">
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label">Model Accuracy</div><div class="kpi-value up">91.4%</div><div class="kpi-change up">↑ 3.1% vs prior model</div></div>
-        <div class="kpi-card"><div class="kpi-label">Demand Growth (30D)</div><div class="kpi-value up">+8.4%</div><div class="kpi-change">Electronics leading</div></div>
-        <div class="kpi-card"><div class="kpi-label">SKUs Under Plan</div><div class="kpi-value">4,812</div><div class="kpi-change up">All categories</div></div>
-        <div class="kpi-card"><div class="kpi-label">Reorder Events (14D)</div><div class="kpi-value warn">12</div><div class="kpi-change down">5 at risk</div></div>
+        <div class="kpi-card"><div class="kpi-label">Demand Growth (30D)</div><div class="kpi-value up">+14.8%</div><div class="kpi-change">Post-Eid · Beverages leading</div></div>
+        <div class="kpi-card"><div class="kpi-label">FMCG SKUs Under Plan</div><div class="kpi-value">4,812</div><div class="kpi-change up">All 6 categories</div></div>
+        <div class="kpi-card"><div class="kpi-label">Reorder Events (14D)</div><div class="kpi-value warn">5</div><div class="kpi-change down">2 high-risk</div></div>
       </div>
       <div class="dp-row" style="margin-top:20px;">
         <div class="card">
@@ -649,14 +842,16 @@
 //  DATA
 // ═══════════════════════════════════
 const skus = [
-  { id:'SKU-10042', name:"Men's Running Shoes",  cat:'Apparel',     supplier:'FabricPlus', lead:'14d', stock:48,   safety:80,  rop:200, forecast:620, status:'critical', trend:-34, dos:2.3  },
-  { id:'SKU-20187', name:'4K Smart TV 55"',       cat:'Electronics', supplier:'TechCo',     lead:'21d', stock:92,   safety:60,  rop:150, forecast:310, status:'low',      trend:12,  dos:8.9  },
-  { id:'SKU-33015', name:'Organic Coffee Blend',  cat:'Grocery',     supplier:'FreshFarm',  lead:'5d',  stock:2340, safety:300, rop:600, forecast:2100,status:'healthy',  trend:5,   dos:33.4 },
-  { id:'SKU-44320', name:'Standing Desk Frame',   cat:'Home',        supplier:'FurnCo',     lead:'30d', stock:184,  safety:100, rop:210, forecast:210, status:'low',      trend:0,   dos:26.3 },
-  { id:'SKU-51200', name:'Wireless Earbuds Pro',  cat:'Electronics', supplier:'TechCo',     lead:'14d', stock:22,   safety:50,  rop:180, forecast:480, status:'critical', trend:61,  dos:1.4  },
-  { id:'SKU-62450', name:'Yoga Mat Premium',      cat:'Apparel',     supplier:'FabricPlus', lead:'7d',  stock:870,  safety:100, rop:250, forecast:540, status:'healthy',  trend:9,   dos:48.2 },
-  { id:'SKU-71300', name:'Air Fryer XL',          cat:'Home',        supplier:'FurnCo',     lead:'18d', stock:33,   safety:40,  rop:100, forecast:290, status:'critical', trend:44,  dos:3.4  },
-  { id:'SKU-82100', name:'Protein Powder Vanilla',cat:'Grocery',     supplier:'FreshFarm',  lead:'7d',  stock:1200, safety:200, rop:400, forecast:950, status:'healthy',  trend:2,   dos:37.9 },
+  { id:'SKU-BEV-001', name:'Vimto Cordial 750ml',             cat:'Beverages',     supplier:'Vimto Gulf',      lead:'4d',  stock:3800, safety:700,  rop:1800, forecast:7600, status:'healthy',  trend:38,  dos:14.9, risk:'low',    conf:89 },
+  { id:'SKU-BEV-002', name:'Almarai Mango Juice 1L',          cat:'Beverages',     supplier:'Almarai Co.',     lead:'3d',  stock:420,  safety:500,  rop:1100, forecast:3200, status:'critical', trend:29,  dos:3.9,  risk:'high',   conf:72 },
+  { id:'SKU-DAI-001', name:'Almarai Full Cream Milk 1L',       cat:'Dairy',         supplier:'Almarai Co.',     lead:'2d',  stock:2200, safety:600,  rop:1500, forecast:5400, status:'low',      trend:4,   dos:12.2, risk:'medium', conf:85 },
+  { id:'SKU-DAI-002', name:'Almarai Laban 1L',                 cat:'Dairy',         supplier:'Almarai Co.',     lead:'2d',  stock:780,  safety:400,  rop:900,  forecast:2800, status:'low',      trend:6,   dos:8.4,  risk:'medium', conf:83 },
+  { id:'SKU-SNK-001', name:'Chipsy Salt & Vinegar 160g',       cat:'Snacks',        supplier:'PepsiCo ME',      lead:'4d',  stock:5200, safety:500,  rop:1400, forecast:5800, status:'healthy',  trend:8,   dos:27.0, risk:'low',    conf:92 },
+  { id:'SKU-SNK-002', name:'Oreo Original 154g',               cat:'Snacks',        supplier:'Mondelez ME',     lead:'6d',  stock:390,  safety:350,  rop:800,  forecast:2100, status:'low',      trend:21,  dos:5.6,  risk:'medium', conf:77 },
+  { id:'SKU-HPC-001', name:'Vatika Nourishing Shampoo 400ml',  cat:'Personal Care', supplier:'Dabur Gulf',      lead:'7d',  stock:1900, safety:250,  rop:600,  forecast:1500, status:'healthy',  trend:-3,  dos:38.0, risk:'low',    conf:94 },
+  { id:'SKU-HLD-001', name:'Persil Automatic 2.5kg',           cat:'Household',     supplier:'Henkel ME',       lead:'7d',  stock:720,  safety:200,  rop:500,  forecast:1200, status:'healthy',  trend:5,   dos:18.0, risk:'low',    conf:91 },
+  { id:'SKU-FRZ-001', name:'Americana Chicken Nuggets 400g',   cat:'Frozen Foods',  supplier:'Americana Group', lead:'4d',  stock:280,  safety:350,  rop:800,  forecast:1800, status:'critical', trend:34,  dos:4.7,  risk:'high',   conf:68 },
+  { id:'SKU-FRZ-002', name:'Sadia Chicken Breast 1kg',         cat:'Frozen Foods',  supplier:'Sadia Gulf',      lead:'5d',  stock:1300, safety:250,  rop:600,  forecast:1200, status:'healthy',  trend:3,   dos:32.5, risk:'low',    conf:87 },
 ];
 
 const statusColor = { critical:'var(--red)', low:'var(--yellow)', healthy:'var(--green)' };
@@ -668,14 +863,14 @@ const hmClass     = { critical:'hm-critical', low:'hm-low', healthy:'hm-ok' };
 //  NAVIGATION
 // ═══════════════════════════════════
 const pageTitles = {
-  dashboard:     ['Dashboard',       'Retail Operations · Spring 2026'],
-  'sku-explorer':['SKU Explorer',    'Browse & search all products'],
-  'sku-detail':  ['SKU Detail',      'Forecast drill-down'],
-  'forecast-board':['Forecast Board','Compare SKUs side-by-side'],
-  alerts:           ['Alerts & Actions',  'Real-time monitoring'],
-  replenishment:    ['Replenishment',     'Purchase orders & reorder management'],
-  suppliers:        ['Suppliers',         'Supplier performance & lead times'],
-  'demand-planning':['Demand Planning',   'Forecast models & category trends'],
+  dashboard:        ['Dashboard',        'GCC FMCG Operations · Apr 2026'],
+  'sku-explorer':   ['SKU Explorer',     'Browse & search all GCC FMCG products'],
+  'sku-detail':     ['SKU Detail',       'Forecast drill-down & risk insights'],
+  'forecast-board': ['Forecast Board',   'Compare SKUs side-by-side · GCC Market'],
+  alerts:           ['Alerts',           'Real-time risk & stock monitoring · GCC'],
+  replenishment:    ['Replenishment',    'Purchase orders & reorder management'],
+  suppliers:        ['Suppliers',        'Supplier performance & lead times · GCC'],
+  'demand-planning':['Demand Planning',  'Forecast models & category trends · GCC'],
 };
 
 function navigate(pageId) {
@@ -828,7 +1023,7 @@ function openSKU(id) {
 
   // History
   const hist = document.getElementById('detail-history');
-  const weeks = ['Mar 10','Mar 17','Mar 24','Mar 31'];
+  const weeks = ['10/03','17/03','24/03','31/03'];
   hist.innerHTML = weeks.map((w,i) => {
     const actual = Math.round(s.forecast / 4 * (0.85 + Math.random()*.3));
     const pred   = Math.round(s.forecast / 4 * (0.9  + Math.random()*.2));
@@ -849,7 +1044,7 @@ function openSKU(id) {
   if (detailChartInstance) detailChartInstance.destroy();
   const dLabels = [];
   const base = new Date('2026-04-01');
-  for (let i = 0; i < 30; i++) { const d = new Date(base); d.setDate(d.getDate()+i); dLabels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'})); }
+  for (let i = 0; i < 30; i++) { const d = new Date(base); d.setDate(d.getDate()+i); dLabels.push(d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})); }
   const dActual   = Array.from({length:10}, (_,i) => Math.round(s.forecast/30 * (0.8+Math.random()*.4))).concat(Array(20).fill(null));
   const dForecast = Array(9).fill(null).concat(Array.from({length:21}, () => Math.round(s.forecast/30 * (0.9+Math.random()*.25))));
   const dUpper    = dForecast.map(v => v ? Math.round(v*1.1) : null);
@@ -879,7 +1074,7 @@ document.getElementById('back-btn').addEventListener('click', () => navigate('sk
 (function() {
   const labels = [];
   const base = new Date('2026-04-01');
-  for (let i=0;i<30;i++){const d=new Date(base);d.setDate(d.getDate()+i);labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));}
+  for (let i=0;i<30;i++){const d=new Date(base);d.setDate(d.getDate()+i);labels.push(d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}));}
   const actual   = Array.from({length:10},()=>Math.round(3800+Math.random()*600)).concat(Array(20).fill(null));
   const forecast = Array(9).fill(null).concat(Array.from({length:21},()=>Math.round(4000+Math.random()*700)));
   new Chart(document.getElementById('dashForecastChart'),{
@@ -899,7 +1094,7 @@ document.getElementById('back-btn').addEventListener('click', () => navigate('sk
 // ═══════════════════════════════════
 new Chart(document.getElementById('donutChart'),{
   type:'doughnut',
-  data:{labels:['Apparel','Electronics','Grocery','Home','Other'],datasets:[{data:[32,24,21,15,8],backgroundColor:['#4f6ef7','#7c3aed','#22c55e','#f59e0b','#334155'],borderWidth:2,borderColor:'#1a1d27',hoverOffset:6}]},
+  data:{labels:['Beverages','Dairy','Snacks','Personal Care','Household','Frozen Foods'],datasets:[{data:[28,22,19,14,10,7],backgroundColor:['#4f6ef7','#22c55e','#f59e0b','#7c3aed','#06b6d4','#64748b'],borderWidth:2,borderColor:'#1a1d27',hoverOffset:6}]},
   options:{cutout:'70%',responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1}}}
 });
 
@@ -911,10 +1106,10 @@ new Chart(document.getElementById('donutChart'),{
   new Chart(document.getElementById('multiForecastChart'),{
     type:'bar',
     data:{labels, datasets:[
-      {label:"Running Shoes",data:[155,160,148,157],backgroundColor:'rgba(79,110,247,.7)',borderRadius:4},
-      {label:"Earbuds Pro",  data:[110,132,148,190],backgroundColor:'rgba(124,58,237,.7)',borderRadius:4},
-      {label:"Smart TV",     data:[72,78,80,80],    backgroundColor:'rgba(34,197,94,.7)', borderRadius:4},
-      {label:"Coffee Blend", data:[520,510,535,535],backgroundColor:'rgba(245,158,11,.7)',borderRadius:4},
+      {label:'Vimto Cordial',      data:[1820,2100,2340,1960],backgroundColor:'rgba(79,110,247,.7)', borderRadius:4},
+      {label:'Almarai Mango Juice',data:[620,740,910,1080],  backgroundColor:'rgba(239,68,68,.7)',  borderRadius:4},
+      {label:'Almarai Milk 1L',    data:[1280,1340,1390,1410],backgroundColor:'rgba(34,197,94,.7)',  borderRadius:4},
+      {label:'Chipsy S&V 160g',    data:[1380,1450,1510,1560],backgroundColor:'rgba(245,158,11,.7)', borderRadius:4},
     ]},
     options:{responsive:true,maintainAspectRatio:true,
       plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'}},
@@ -956,12 +1151,12 @@ const orderStatus = {
   cancelled:   { cls:'badge-muted',   label:'Cancelled' },
 };
 const orders = [
-  { id:'PO-2026-001', sku:'SKU-51200', name:'Wireless Earbuds Pro',  supplier:'TechCo',     qty:500,  status:'pending',     ordered:'Apr 8', eta:'Apr 22', value:12500 },
-  { id:'PO-2026-002', sku:'SKU-10042', name:"Men's Running Shoes",   supplier:'FabricPlus', qty:600,  status:'approved',    ordered:'Apr 7', eta:'Apr 21', value:28800 },
-  { id:'PO-2026-003', sku:'SKU-71300', name:'Air Fryer XL',          supplier:'FurnCo',     qty:300,  status:'in-transit',  ordered:'Apr 5', eta:'Apr 23', value:22500 },
-  { id:'PO-2026-004', sku:'SKU-20187', name:'4K Smart TV 55"',       supplier:'TechCo',     qty:200,  status:'pending',     ordered:'Apr 8', eta:'Apr 29', value:59800 },
-  { id:'PO-2026-005', sku:'SKU-44320', name:'Standing Desk Frame',   supplier:'FurnCo',     qty:150,  status:'approved',    ordered:'Apr 3', eta:'May 3',  value:26250 },
-  { id:'PO-2026-006', sku:'SKU-33015', name:'Organic Coffee Blend',  supplier:'FreshFarm',  qty:1000, status:'delivered',   ordered:'Apr 1', eta:'Apr 6',  value:8500  },
+  { id:'PO-2026-001', sku:'SKU-BEV-002', name:'Almarai Mango Juice 1L',        supplier:'Almarai Co.',     qty:1200, status:'pending',     ordered:'22/04/2026', eta:'25/04/2026', value:19350  },
+  { id:'PO-2026-002', sku:'SKU-FRZ-001', name:'Americana Chicken Nuggets 400g', supplier:'Americana Group', qty:700,  status:'approved',    ordered:'21/04/2026', eta:'25/04/2026', value:34125  },
+  { id:'PO-2026-003', sku:'SKU-DAI-001', name:'Almarai Full Cream Milk 1L',     supplier:'Almarai Co.',     qty:3000, status:'in-transit',  ordered:'20/04/2026', eta:'22/04/2026', value:24750  },
+  { id:'PO-2026-004', sku:'SKU-DAI-002', name:'Almarai Laban 1L',               supplier:'Almarai Co.',     qty:1400, status:'pending',     ordered:'22/04/2026', eta:'24/04/2026', value:17325  },
+  { id:'PO-2026-005', sku:'SKU-SNK-002', name:'Oreo Original 154g',             supplier:'Mondelez ME',     qty:1000, status:'approved',    ordered:'19/04/2026', eta:'25/04/2026', value:20625  },
+  { id:'PO-2026-006', sku:'SKU-BEV-001', name:'Vimto Cordial 750ml',            supplier:'Vimto Gulf',      qty:2000, status:'delivered',   ordered:'15/04/2026', eta:'18/04/2026', value:52500  },
 ];
 
 function renderReplenishment() {
@@ -980,7 +1175,7 @@ function renderReplenishment() {
       <td><span class="badge ${os.cls}">${os.label}</span></td>
       <td style="font-size:12px;color:var(--muted)">${o.ordered}</td>
       <td style="font-size:12px">${o.eta}</td>
-      <td style="font-weight:600">$${o.value.toLocaleString()}</td>
+      <td style="font-weight:600;color:var(--gold)">SAR ${o.value.toLocaleString()}</td>
       <td>${action}</td>
     </tr>`;
   }).join('');
@@ -991,10 +1186,14 @@ renderReplenishment();
 //  SUPPLIERS DATA & RENDER
 // ═══════════════════════════════════
 const suppliers = [
-  { name:'TechCo',     cat:'Electronics', skus:2, lead:'17d', onTime:94, openOrders:2 },
-  { name:'FabricPlus', cat:'Apparel',     skus:2, lead:'10d', onTime:88, openOrders:1 },
-  { name:'FreshFarm',  cat:'Grocery',     skus:2, lead:'6d',  onTime:97, openOrders:0 },
-  { name:'FurnCo',     cat:'Home',        skus:2, lead:'24d', onTime:82, openOrders:2 },
+  { name:'Vimto Gulf',       cat:'Beverages',     skus:1, lead:'4d',  onTime:96, openOrders:1 },
+  { name:'Almarai Co.',      cat:'Beverages/Dairy',skus:3, lead:'2d',  onTime:98, openOrders:3 },
+  { name:'PepsiCo ME',       cat:'Snacks',        skus:1, lead:'4d',  onTime:97, openOrders:0 },
+  { name:'Mondelez ME',      cat:'Snacks',        skus:1, lead:'6d',  onTime:88, openOrders:1 },
+  { name:'Dabur Gulf',       cat:'Personal Care', skus:1, lead:'7d',  onTime:93, openOrders:0 },
+  { name:'Henkel ME',        cat:'Household',     skus:1, lead:'7d',  onTime:94, openOrders:0 },
+  { name:'Americana Group',  cat:'Frozen Foods',  skus:1, lead:'4d',  onTime:91, openOrders:1 },
+  { name:'Sadia Gulf',       cat:'Frozen Foods',  skus:1, lead:'5d',  onTime:96, openOrders:1 },
 ];
 
 function renderSuppliers() {
@@ -1025,10 +1224,12 @@ renderSuppliers();
 //  DEMAND PLANNING RENDER
 // ═══════════════════════════════════
 const seasonalityFactors = [
-  { cat:'Electronics', factor:1.61 },
-  { cat:'Apparel',     factor:0.92 },
-  { cat:'Grocery',     factor:1.05 },
-  { cat:'Home',        factor:1.12 },
+  { cat:'Beverages',     factor:1.48 },
+  { cat:'Dairy',         factor:1.12 },
+  { cat:'Snacks',        factor:1.35 },
+  { cat:'Personal Care', factor:0.96 },
+  { cat:'Household',     factor:1.08 },
+  { cat:'Frozen Foods',  factor:1.38 },
 ];
 
 function renderDemandPlanning() {
@@ -1070,14 +1271,14 @@ renderDemandPlanning();
 (function(){
   const labels = [];
   const base = new Date('2026-04-01');
-  for (let i=0;i<12;i++){const d=new Date(base);d.setDate(d.getDate()+i*7);labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));}
+  for (let i=0;i<12;i++){const d=new Date(base);d.setDate(d.getDate()+i*7);labels.push(d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}));}
   new Chart(document.getElementById('dpForecastChart'),{
     type:'line',
     data:{labels, datasets:[
-      {label:'Electronics',data:Array.from({length:12},(_,i)=>Math.round(800+i*30+Math.random()*100)),borderColor:'#4f6ef7',borderWidth:2,pointRadius:3,fill:false,tension:.4},
-      {label:'Apparel',    data:Array.from({length:12},(_,i)=>Math.round(620-i*5 +Math.random()*80)), borderColor:'#7c3aed',borderWidth:2,pointRadius:3,fill:false,tension:.4},
-      {label:'Grocery',    data:Array.from({length:12},(_,i)=>Math.round(2100+i*20+Math.random()*150)),borderColor:'#22c55e',borderWidth:2,pointRadius:3,fill:false,tension:.4},
-      {label:'Home',       data:Array.from({length:12},(_,i)=>Math.round(380+i*10+Math.random()*60)), borderColor:'#f59e0b',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+      {label:'Beverages',    data:Array.from({length:12},(_,i)=>Math.round(8200+i*120+Math.random()*400)),borderColor:'#4f6ef7',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+      {label:'Dairy',        data:Array.from({length:12},(_,i)=>Math.round(6400+i*60 +Math.random()*300)),borderColor:'#22c55e',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+      {label:'Snacks',       data:Array.from({length:12},(_,i)=>Math.round(7900+i*90 +Math.random()*350)),borderColor:'#f59e0b',borderWidth:2,pointRadius:3,fill:false,tension:.4},
+      {label:'Frozen Foods', data:Array.from({length:12},(_,i)=>Math.round(2300+i*80 +Math.random()*200)),borderColor:'#06b6d4',borderWidth:2,pointRadius:3,fill:false,tension:.4},
     ]},
     options:{responsive:true,maintainAspectRatio:true,interaction:{mode:'index',intersect:false},
       plugins:{legend:{labels:{color:'#94a3b8',font:{size:11}}},tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8'}},

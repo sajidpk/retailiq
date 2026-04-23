@@ -283,6 +283,29 @@
 
     /* ── SAR value styling ── */
     .sar { color:var(--gold); font-weight:700; }
+
+    /* ── Perishables ── */
+    .perish-monitor { background:var(--surface); border:1px solid rgba(249,115,22,.3); border-radius:12px; padding:16px 20px; margin-bottom:20px; }
+    .perish-monitor-title { font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:10px; }
+    .perish-monitor-sub { font-size:11px; color:var(--muted); font-weight:400; }
+    .perish-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+    .perish-row:last-child { border-bottom:none; }
+    .perish-name { flex:1; min-width:0; }
+    .perish-name strong { display:block; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .perish-name span { font-size:10.5px; color:var(--muted); }
+    .dte-wrap { display:flex; align-items:center; gap:8px; }
+    .dte-bar-track { height:5px; background:var(--border); border-radius:3px; width:60px; flex-shrink:0; }
+    .dte-bar-fill { height:100%; border-radius:3px; }
+    .dte-crit { color:var(--red); }
+    .dte-warn { color:var(--yellow); }
+    .dte-ok { color:var(--green); }
+    .dte-label { font-size:11px; font-weight:700; min-width:28px; text-align:right; }
+    .perish-exp { font-size:11px; color:var(--muted); min-width:80px; text-align:right; white-space:nowrap; }
+    .perish-tag { display:inline-flex; align-items:center; gap:4px; background:rgba(249,115,22,.12); border:1px solid rgba(249,115,22,.3); color:#f97316; border-radius:4px; font-size:9px; padding:1px 5px; font-weight:700; letter-spacing:.3px; }
+    .waste-risk-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+    .waste-risk-item:last-child { border-bottom:none; }
+    .waste-risk-bar-track { height:6px; background:var(--border); border-radius:3px; flex:1; }
+    .waste-risk-bar-fill { height:100%; border-radius:3px; }
   </style>
 </head>
 <body>
@@ -343,6 +366,7 @@
     <div class="nav-item" data-page="replenishment"><span class="icon">◻</span> Replenishment</div>
     <div class="nav-item" data-page="suppliers"><span class="icon">◎</span> Suppliers</div>
     <div class="nav-item" data-page="demand-planning"><span class="icon">≈</span> Demand Planning</div>
+    <div class="nav-item" data-page="perishables"><span class="icon">⏱</span> Perishables <span class="nav-badge" style="background:#f97316;">3</span></div>
     <div class="nav-section">Data</div>
     <div class="nav-item"><span class="icon">↺</span> Pipeline</div>
     <div class="nav-item"><span class="icon">⊡</span> Settings</div>
@@ -490,12 +514,13 @@
           <div class="card-header"><div><div class="card-title">Stock by Category</div><div class="card-sub">GCC FMCG inventory mix</div></div></div>
           <div class="donut-wrap"><canvas id="donutChart"></canvas><div class="donut-label"><div class="big">4.8K</div><div class="small">SKUs</div></div></div>
           <div class="donut-legend">
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#4f6ef7"></div>Beverages 28%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#22c55e"></div>Dairy 22%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#f59e0b"></div>Snacks 19%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#7c3aed"></div>Personal Care 14%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#06b6d4"></div>Household 10%</div>
-            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#64748b"></div>Frozen 7%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#4f6ef7"></div>Beverages 22%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#22c55e"></div>Dairy 19%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#f59e0b"></div>Snacks 16%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#7c3aed"></div>Personal Care 12%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#06b6d4"></div>Household 9%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#64748b"></div>Frozen 6%</div>
+            <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#f97316"></div>Perishables 16%</div>
           </div>
         </div>
       </div>
@@ -559,6 +584,15 @@
         </div>
       </div>
 
+      <!-- Perishables Monitor -->
+      <div class="perish-monitor">
+        <div class="perish-monitor-title">
+          <span>⏱ Perishables Monitor <span class="perish-tag">LIVE</span></span>
+          <span class="perish-monitor-sub">Sorted by days to expiry · 8 perishable SKUs tracked · 3 expiring today</span>
+        </div>
+        <div id="dash-perish-rows"></div>
+      </div>
+
       <!-- Table + Alerts -->
       <div class="row-2col">
         <div class="table-card">
@@ -585,6 +619,8 @@
           <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-FRZ-001 — Americana Chicken Nuggets 400g</strong>280 units below safety stock (350). Lead: 4d. Post-Eid demand spike +34%.<div class="alert-time">8 min ago · Conservative order approved</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-HPC-003 — Dove Body Wash 500ml</strong>310 units · safety stock 280. Conf 74%. 6.7 days of supply. Lead: 6d — reorder window closing.<div class="alert-time">14 min ago · Order pending approval</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-001 — Almarai Full Cream Milk 1L</strong>2,200 units · 12.2 days of supply · buffer +2d applied by mitigation engine.<div class="alert-time">22 min ago · Monitoring</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-yellow">EXP</div><div class="alert-text"><strong>[EXPIRY] SKU-PRH-001 — Fresh Pita Bread 6pk</strong>480 units expire today (Apr 23). Markdown or donate immediately to avoid total waste. SAR 3,840 at risk.<div class="alert-time">Just now · Markdown action required</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-yellow">EXP</div><div class="alert-text"><strong>[EXPIRY] SKU-PRH-004 — Fresh Whole Chicken 1.2kg</strong>560 units expire today (Apr 23). Lead 1d — immediate clearance pricing recommended. SAR 14,000 at risk.<div class="alert-time">Just now · Clearance pricing recommended</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-blue">INFO</div><div class="alert-text"><strong>Demand spike: Beverages & Dairy</strong>Post-Eid seasonal surge +38% on Vimto, +29% on Almarai Juice — Risk Assessment updated.<div class="alert-time">1 hr ago · Model retrained</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-blue">SYNC</div><div class="alert-text"><strong>Pipeline run complete</strong>4,812 ME FMCG SKUs processed · Risk Insights returned · 18.2% waste reduction vs baseline.<div class="alert-time">4 min ago</div></div></div>
         </div>
@@ -596,7 +632,7 @@
     <div class="page" id="page-sku-explorer">
       <div class="table-header" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;padding:14px 18px;">
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          <select class="search-box" style="width:150px;cursor:pointer;"><option>All Categories</option><option>Beverages</option><option>Dairy</option><option>Snacks</option><option>Personal Care</option><option>Household</option><option>Frozen Foods</option></select>
+          <select class="search-box" style="width:150px;cursor:pointer;"><option>All Categories</option><option>Beverages</option><option>Dairy</option><option>Snacks</option><option>Personal Care</option><option>Household</option><option>Frozen Foods</option><option>Perishables</option></select>
           <select class="search-box" style="width:140px;cursor:pointer;"><option>All Status</option><option>Critical</option><option>Low</option><option>Healthy</option></select>
           <select class="search-box" style="width:150px;cursor:pointer;"><option>All Suppliers</option><option>Vimto Gulf</option><option>Almarai Co.</option><option>PepsiCo ME</option><option>Mondelez ME</option><option>Dabur Gulf</option><option>Henkel ME</option><option>Americana Group</option><option>Sadia Gulf</option><option>Red Bull Dist.</option><option>Nada Dairy</option><option>Kellanova ME</option><option>P&G Dist.</option><option>Unilever ME</option><option>McCain Foods</option></select>
           <input class="search-box" placeholder="Search product or SKU…" style="width:220px;" />
@@ -758,6 +794,9 @@
         <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-001 — Almarai Full Cream Milk 1L</strong>12.2 days of supply. Confidence 85%. Safety stock buffer increased to 600 units by Mitigation Engine.<div class="alert-time">22 minutes ago · Monitoring</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-SNK-002 — Oreo Original 154g</strong>390 units · 5.6 days supply. Seasonal demand spike +21%. Moderate order strategy applied.<div class="alert-time">35 minutes ago · Order pending</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-002 — Almarai Laban 1L</strong>780 units · 8.4 days supply. Short shelf life — Mitigation Engine flagged worst-case overstock risk.<div class="alert-time">1 hour ago · Review recommended</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">EXP</div><div class="alert-text"><strong>[EXPIRY TODAY] SKU-PRH-001 — Fresh Pita Bread 6pk</strong>480 units expire Apr 23. Shelf life: 2d. SAR 3,840 at risk. Markdown or redistribute immediately.<div class="alert-time">Just now · Markdown action required</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">EXP</div><div class="alert-text"><strong>[EXPIRY TODAY] SKU-PRH-004 — Fresh Whole Chicken 1.2kg</strong>560 units expire Apr 23. Shelf life: 3d. SAR 14,000 at risk. Clearance pricing triggered.<div class="alert-time">Just now · Clearance pricing recommended</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-yellow">EXP</div><div class="alert-text"><strong>[EXPIRY TODAY] SKU-PRH-007 — Fresh Hummus 200g</strong>180 units expire Apr 23. Shelf life: 6d. SAR 2,160 at risk. Prioritise front-of-shelf placement.<div class="alert-time">Just now · Placement action needed</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-blue">INFO</div><div class="alert-text"><strong>Post-Eid Demand Surge — Beverages & Dairy</strong>+38% Vimto, +29% Almarai Juice above seasonal ME baseline. Risk Assessment Engine upgraded both to HIGH. Model retrained.<div class="alert-time">1 hour ago</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-blue">SYNC</div><div class="alert-text"><strong>Full Pipeline Run Completed</strong>4,812 ME FMCG SKUs · Risk Assessment + Optimization + Mitigation complete · 18.2% waste reduction vs baseline returned.<div class="alert-time">4 minutes ago · No action needed</div></div></div>
       </div>
@@ -792,7 +831,7 @@
     <!-- ══════════ PAGE: SUPPLIERS ══════════ -->
     <div class="page" id="page-suppliers">
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Suppliers</div><div class="kpi-value">14</div><div class="kpi-change up">All active</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Suppliers</div><div class="kpi-value">18</div><div class="kpi-change up">All active</div></div>
         <div class="kpi-card"><div class="kpi-label">Avg Lead Time</div><div class="kpi-value">4.4d</div><div class="kpi-change up">↓ vs last quarter</div></div>
         <div class="kpi-card"><div class="kpi-label">Avg On-Time Rate</div><div class="kpi-value up">94.1%</div><div class="kpi-change up">↑ vs last quarter</div></div>
         <div class="kpi-card"><div class="kpi-label">Open POs</div><div class="kpi-value">6</div><div class="kpi-change">Across 5 suppliers</div></div>
@@ -837,6 +876,31 @@
       </div>
     </div><!-- /page-demand-planning -->
 
+
+    <!-- ══════════ PAGE: PERISHABLES ══════════ -->
+    <div class="page" id="page-perishables">
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-label">Expiring Today</div><div class="kpi-value down">3</div><div class="kpi-change down">Markdown / redistribute now</div></div>
+        <div class="kpi-card"><div class="kpi-label">Expiring ≤ 3 Days</div><div class="kpi-value warn">5</div><div class="kpi-change warn">Prioritise sales this shift</div></div>
+        <div class="kpi-card"><div class="kpi-label">At-Risk Value</div><div class="kpi-value warn">SAR 19,200</div><div class="kpi-change warn">Perishable stock exposure</div></div>
+        <div class="kpi-card"><div class="kpi-label">Avg Days to Expiry</div><div class="kpi-value">4.2d</div><div class="kpi-change up">Across 8 tracked SKUs</div></div>
+      </div>
+
+      <div class="row-2col" style="margin-top:20px;">
+        <div class="table-card">
+          <div class="table-header"><div class="card-title">Expiry Tracker — All Perishable SKUs</div></div>
+          <table>
+            <thead><tr><th>SKU / Product</th><th>Supplier</th><th>Stock</th><th>Shelf Life</th><th>Days to Expiry</th><th>Expires</th><th>Shelf Used</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="perish-tbody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-header" style="margin-bottom:12px;"><div><div class="card-title">Waste Exposure</div><div class="card-sub">SAR at risk per item · sorted by urgency</div></div></div>
+          <div id="perish-waste-list"></div>
+        </div>
+      </div>
+    </div><!-- /page-perishables -->
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -865,6 +929,14 @@ const skus = [
   { id:'SKU-HLD-002', name:'Ariel Automatic 3kg',             cat:'Household',     supplier:'P&G Dist.',       lead:'7d',  stock:890,  safety:200,  rop:480,  forecast:1400, status:'healthy',  trend:4,   dos:19.1, risk:'low',    conf:90 },
   { id:'SKU-HLD-003', name:'Fairy Dish Liquid 1L',            cat:'Household',     supplier:'P&G Dist.',       lead:'5d',  stock:640,  safety:180,  rop:400,  forecast:1100, status:'healthy',  trend:3,   dos:17.5, risk:'low',    conf:92 },
   { id:'SKU-FRZ-003', name:'McCain Oven Chips 750g',          cat:'Frozen Foods',  supplier:'McCain Foods',    lead:'5d',  stock:1100, safety:200,  rop:500,  forecast:900,  status:'healthy',  trend:-2,  dos:36.7, risk:'low',    conf:89 },
+  { id:'SKU-PRH-001', name:'Fresh Pita Bread 6pk',            cat:'Perishables',   supplier:'Al Rabie Bakery', lead:'1d',  stock:480,  safety:150,  rop:200,  forecast:900,  status:'low',      trend:5,   dos:16.0, risk:'medium', conf:82, perishable:true, shelfLife:2,  dte:1,  sarValue:8   },
+  { id:'SKU-PRH-002', name:'Fresh Labneh 500g',               cat:'Perishables',   supplier:'Almarai Co.',     lead:'1d',  stock:320,  safety:100,  rop:200,  forecast:700,  status:'healthy',  trend:8,   dos:13.7, risk:'low',    conf:88, perishable:true, shelfLife:10, dte:4,  sarValue:14  },
+  { id:'SKU-PRH-003', name:'Fresh Cut Salad Mix 250g',        cat:'Perishables',   supplier:'Fresh Fields',    lead:'1d',  stock:210,  safety:80,   rop:150,  forecast:450,  status:'low',      trend:3,   dos:14.0, risk:'medium', conf:79, perishable:true, shelfLife:4,  dte:2,  sarValue:11  },
+  { id:'SKU-PRH-004', name:'Fresh Whole Chicken 1.2kg',       cat:'Perishables',   supplier:'Al Watania',      lead:'1d',  stock:560,  safety:150,  rop:300,  forecast:900,  status:'healthy',  trend:12,  dos:18.7, risk:'low',    conf:85, perishable:true, shelfLife:3,  dte:1,  sarValue:25  },
+  { id:'SKU-PRH-005', name:'Fresh Orange Juice 1L',           cat:'Perishables',   supplier:'Al Rabie',        lead:'2d',  stock:390,  safety:120,  rop:250,  forecast:800,  status:'low',      trend:7,   dos:14.6, risk:'medium', conf:80, perishable:true, shelfLife:7,  dte:3,  sarValue:10  },
+  { id:'SKU-PRH-006', name:'Free Range Eggs 15pk',            cat:'Perishables',   supplier:'Al Watania',      lead:'1d',  stock:850,  safety:200,  rop:400,  forecast:1400, status:'healthy',  trend:4,   dos:18.2, risk:'low',    conf:91, perishable:true, shelfLife:21, dte:12, sarValue:18  },
+  { id:'SKU-PRH-007', name:'Fresh Hummus 200g',               cat:'Perishables',   supplier:'Baladna',         lead:'1d',  stock:180,  safety:80,   rop:160,  forecast:350,  status:'low',      trend:9,   dos:15.4, risk:'medium', conf:76, perishable:true, shelfLife:6,  dte:1,  sarValue:12  },
+  { id:'SKU-PRH-008', name:'Greek Yogurt Vanilla 150g',       cat:'Perishables',   supplier:'Almarai Co.',     lead:'1d',  stock:620,  safety:150,  rop:300,  forecast:1100, status:'healthy',  trend:6,   dos:16.9, risk:'low',    conf:90, perishable:true, shelfLife:14, dte:8,  sarValue:9   },
 ];
 
 const statusColor = { critical:'var(--red)', low:'var(--yellow)', healthy:'var(--green)' };
@@ -884,6 +956,7 @@ const pageTitles = {
   replenishment:    ['Replenishment',    'Purchase orders & reorder management'],
   suppliers:        ['Suppliers',        'Supplier performance & lead times · GCC'],
   'demand-planning':['Demand Planning',  'Forecast models & category trends · GCC'],
+  'perishables':    ['Perishables',      'Expiry tracking · waste risk · GCC FMCG'],
 };
 
 function navigate(pageId) {
@@ -1107,7 +1180,7 @@ document.getElementById('back-btn').addEventListener('click', () => navigate('sk
 // ═══════════════════════════════════
 new Chart(document.getElementById('donutChart'),{
   type:'doughnut',
-  data:{labels:['Beverages','Dairy','Snacks','Personal Care','Household','Frozen Foods'],datasets:[{data:[28,22,19,14,10,7],backgroundColor:['#4f6ef7','#22c55e','#f59e0b','#7c3aed','#06b6d4','#64748b'],borderWidth:2,borderColor:'#1a1d27',hoverOffset:6}]},
+  data:{labels:['Beverages','Dairy','Snacks','Personal Care','Household','Frozen Foods','Perishables'],datasets:[{data:[22,19,16,12,9,6,16],backgroundColor:['#4f6ef7','#22c55e','#f59e0b','#7c3aed','#06b6d4','#64748b','#f97316'],borderWidth:2,borderColor:'#1a1d27',hoverOffset:6}]},
   options:{cutout:'70%',responsive:true,plugins:{legend:{display:false},tooltip:{backgroundColor:'#22263a',borderColor:'#2e3348',borderWidth:1}}}
 });
 
@@ -1213,6 +1286,10 @@ const suppliers = [
   { name:'P&G Dist.',        cat:'Personal Care / Household', skus:3, lead:'6d', onTime:96, openOrders:0 },
   { name:'Unilever ME',      cat:'Personal Care',      skus:1, lead:'6d',  onTime:92, openOrders:1 },
   { name:'McCain Foods',     cat:'Frozen Foods',       skus:1, lead:'5d',  onTime:90, openOrders:0 },
+  { name:'Al Rabie Bakery', cat:'Perishables',        skus:2, lead:'1d',  onTime:93, openOrders:1 },
+  { name:'Al Watania',      cat:'Perishables',        skus:2, lead:'1d',  onTime:97, openOrders:0 },
+  { name:'Fresh Fields',    cat:'Perishables',        skus:1, lead:'1d',  onTime:95, openOrders:0 },
+  { name:'Baladna',         cat:'Perishables',        skus:1, lead:'1d',  onTime:91, openOrders:0 },
 ];
 
 function renderSuppliers() {
@@ -1249,6 +1326,7 @@ const seasonalityFactors = [
   { cat:'Personal Care', factor:0.96 },
   { cat:'Household',     factor:1.08 },
   { cat:'Frozen Foods',  factor:1.38 },
+  { cat:'Perishables',  factor:1.22 },
 ];
 
 function renderDemandPlanning() {
@@ -1305,6 +1383,99 @@ renderDemandPlanning();
     }
   });
 })();
+
+// ═══════════════════════════════════
+//  PERISHABLES
+// ═══════════════════════════════════
+function dteColor(dte) {
+  return dte <= 1 ? 'var(--red)' : dte <= 3 ? 'var(--yellow)' : 'var(--green)';
+}
+function dteBadgeClass(dte) {
+  return dte <= 1 ? 'badge-red' : dte <= 3 ? 'badge-yellow' : 'badge-green';
+}
+function dteBadgeLabel(dte) {
+  return dte <= 1 ? 'Expiring Today' : dte <= 3 ? 'Expiring Soon' : 'OK';
+}
+function expiryDateStr(dte) {
+  const d = new Date('2026-04-22');
+  d.setDate(d.getDate() + dte);
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function renderPerishMonitor() {
+  const items = skus.filter(s => s.perishable).sort((a, b) => a.dte - b.dte);
+  document.getElementById('dash-perish-rows').innerHTML = items.map(s => {
+    const pct = Math.round(s.dte / s.shelfLife * 100);
+    const col = dteColor(s.dte);
+    return `<div class="perish-row">
+      <div class="perish-name">
+        <strong>${s.name}</strong>
+        <span>${s.id} · ${s.supplier}</span>
+      </div>
+      <div class="dte-wrap">
+        <div class="dte-bar-track"><div class="dte-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+        <span class="dte-label" style="color:${col}">${s.dte}d left</span>
+      </div>
+      <span class="perish-exp">Exp: ${expiryDateStr(s.dte)}</span>
+      <span class="badge ${dteBadgeClass(s.dte)}">${dteBadgeLabel(s.dte)}</span>
+      <span style="font-size:12px;color:var(--muted);">${s.stock.toLocaleString()} u</span>
+    </div>`;
+  }).join('');
+}
+
+function renderPerishPage() {
+  const items = skus.filter(s => s.perishable).sort((a, b) => a.dte - b.dte);
+
+  document.getElementById('perish-tbody').innerHTML = items.map(s => {
+    const shelfUsedPct = Math.round((1 - s.dte / s.shelfLife) * 100);
+    const col = dteColor(s.dte);
+    const dtePct = Math.round(s.dte / s.shelfLife * 100);
+    const action = s.dte <= 1
+      ? `<button class="btn btn-outline btn-sm" style="font-size:11px;color:var(--red);border-color:rgba(239,68,68,.5);">Mark Down</button>`
+      : s.dte <= 3
+      ? `<button class="btn btn-outline btn-sm" style="font-size:11px;">Prioritise</button>`
+      : `<span style="font-size:11px;color:var(--muted)">Monitor</span>`;
+    return `<tr onclick="openSKU('${s.id}')">
+      <td><div style="font-weight:600">${s.id}</div><div style="font-size:11px;color:var(--muted)">${s.name}</div></td>
+      <td>${s.supplier}</td>
+      <td>${s.stock.toLocaleString()} u</td>
+      <td style="color:var(--muted)">${s.shelfLife}d</td>
+      <td>
+        <div class="stock-bar-wrap">
+          <div class="stock-bar" style="width:72px"><div class="stock-fill" style="width:${dtePct}%;background:${col}"></div></div>
+          <span style="font-size:12px;font-weight:700;color:${col}">${s.dte}d</span>
+        </div>
+      </td>
+      <td style="font-size:12px">${expiryDateStr(s.dte)}</td>
+      <td>
+        <div class="stock-bar-wrap">
+          <div class="stock-bar" style="width:60px"><div class="stock-fill" style="width:${shelfUsedPct}%;background:${shelfUsedPct>80?'var(--red)':shelfUsedPct>50?'var(--yellow)':'var(--green)'}"></div></div>
+          <span style="font-size:12px;color:var(--muted)">${shelfUsedPct}%</span>
+        </div>
+      </td>
+      <td><span class="badge ${dteBadgeClass(s.dte)}">${dteBadgeLabel(s.dte)}</span></td>
+      <td>${action}</td>
+    </tr>`;
+  }).join('');
+
+  const sarItems = items.map(s => ({ name: s.name, sar: s.stock * s.sarValue, dte: s.dte }))
+    .sort((a, b) => b.sar - a.sar);
+  const maxSar = sarItems[0].sar;
+  document.getElementById('perish-waste-list').innerHTML = sarItems.map(s => {
+    const pct = Math.round(s.sar / maxSar * 100);
+    const col = s.dte <= 1 ? 'var(--red)' : s.dte <= 3 ? 'var(--yellow)' : 'var(--green)';
+    return `<div class="waste-risk-item">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
+        <div class="waste-risk-bar-track" style="margin-top:5px;"><div class="waste-risk-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+      </div>
+      <div style="font-size:12.5px;font-weight:700;color:var(--gold);white-space:nowrap;">SAR ${s.sar.toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+
+renderPerishMonitor();
+renderPerishPage();
 </script>
 </body>
 </html>

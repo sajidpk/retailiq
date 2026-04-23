@@ -350,7 +350,7 @@
   <div class="pipeline-badge">
     <div class="label">AI Pipeline · GCC FMCG</div>
     <div class="pipeline-status"><span class="dot"></span> All systems nominal</div>
-    <div style="font-size:10.5px;color:var(--muted);margin-top:4px;">Risk: 2 high · 3 medium</div>
+    <div style="font-size:10.5px;color:var(--muted);margin-top:4px;">Risk: 3 high · 5 medium</div>
     <div style="font-size:10.5px;color:var(--gold);margin-top:2px;">SAR · Shawwal 1447H</div>
   </div>
 </aside>
@@ -413,7 +413,7 @@
       <!-- KPIs -->
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-label">Active FMCG SKUs</div><div class="kpi-value">4,812</div><div class="kpi-change up">↑ 2.3% vs last month</div></div>
-        <div class="kpi-card"><div class="kpi-label">High-Risk Items</div><div class="kpi-value down">2</div><div class="kpi-change warn">⚠ 3 medium-risk</div></div>
+        <div class="kpi-card"><div class="kpi-label">High-Risk Items</div><div class="kpi-value down">3</div><div class="kpi-change warn">⚠ 5 medium-risk</div></div>
         <div class="kpi-card"><div class="kpi-label">Forecast Accuracy</div><div class="kpi-value up">91.4%</div><div class="kpi-change up">↑ 3.1% vs last model</div></div>
         <div class="kpi-card"><div class="kpi-label">Waste Reduction</div><div class="kpi-value up">18.2%</div><div class="kpi-change up">↑ vs baseline plan</div></div>
       </div>
@@ -445,7 +445,7 @@
           <div class="pipe-stage">
             <div class="pipe-stage-icon new-done">✓</div>
             <div class="pipe-stage-name">Risk Assessment<br>Engine</div>
-            <div class="pipe-stage-sub"><span class="pipe-new-tag">NEW</span> 2 high-risk</div>
+            <div class="pipe-stage-sub"><span class="pipe-new-tag">NEW</span> 3 high-risk</div>
           </div>
           <div class="pipe-arrow">›</div>
           <div class="pipe-stage">
@@ -509,10 +509,11 @@
           <div class="risk-panel-sub">forecast_confidence + demand volatility → risk_level</div>
           <div class="risk-row"><span>Almarai Mango Juice 1L</span><span class="risk-badge risk-high">High</span></div>
           <div class="risk-row"><span>Americana Nuggets 400g</span><span class="risk-badge risk-high">High</span></div>
+          <div class="risk-row"><span>Dove Body Wash 500ml</span><span class="risk-badge risk-high">High</span></div>
           <div class="risk-row"><span>Almarai Full Cream Milk</span><span class="risk-badge risk-medium">Medium</span></div>
-          <div class="risk-row"><span>Almarai Laban 1L</span><span class="risk-badge risk-medium">Medium</span></div>
           <div class="risk-row"><span>Oreo Original 154g</span><span class="risk-badge risk-medium">Medium</span></div>
-          <div class="risk-row"><span>All others (5 SKUs)</span><span class="risk-badge risk-low">Low</span></div>
+          <div class="risk-row"><span>Red Bull Energy 250ml</span><span class="risk-badge risk-medium">Medium</span></div>
+          <div class="risk-row"><span>All others (14 SKUs)</span><span class="risk-badge risk-low">Low</span></div>
         </div>
 
         <!-- Optimization Agent -->
@@ -582,6 +583,7 @@
           </div>
           <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-BEV-002 — Almarai Mango Juice 1L</strong>420 units · 3,200 forecast · conf 72% · conservative order queued.<div class="alert-time">2 min ago · Auto-reorder triggered</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-FRZ-001 — Americana Chicken Nuggets 400g</strong>280 units below safety stock (350). Lead: 4d. Post-Eid demand spike +34%.<div class="alert-time">8 min ago · Conservative order approved</div></div></div>
+          <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-HPC-003 — Dove Body Wash 500ml</strong>310 units · safety stock 280. Conf 74%. 6.7 days of supply. Lead: 6d — reorder window closing.<div class="alert-time">14 min ago · Order pending approval</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-001 — Almarai Full Cream Milk 1L</strong>2,200 units · 12.2 days of supply · buffer +2d applied by mitigation engine.<div class="alert-time">22 min ago · Monitoring</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-blue">INFO</div><div class="alert-text"><strong>Demand spike: Beverages & Dairy</strong>Post-Eid seasonal surge +38% on Vimto, +29% on Almarai Juice — Risk Assessment updated.<div class="alert-time">1 hr ago · Model retrained</div></div></div>
           <div class="alert-item"><div class="alert-icon alert-blue">SYNC</div><div class="alert-text"><strong>Pipeline run complete</strong>4,812 ME FMCG SKUs processed · Risk Insights returned · 18.2% waste reduction vs baseline.<div class="alert-time">4 min ago</div></div></div>
@@ -596,7 +598,7 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
           <select class="search-box" style="width:150px;cursor:pointer;"><option>All Categories</option><option>Beverages</option><option>Dairy</option><option>Snacks</option><option>Personal Care</option><option>Household</option><option>Frozen Foods</option></select>
           <select class="search-box" style="width:140px;cursor:pointer;"><option>All Status</option><option>Critical</option><option>Low</option><option>Healthy</option></select>
-          <select class="search-box" style="width:150px;cursor:pointer;"><option>All Suppliers</option><option>CocaCola Dist.</option><option>Red Bull Dist.</option><option>FreshDairy Co.</option><option>PepsiCo Dist.</option><option>Mondelez Dist.</option><option>P&G Dist.</option><option>McCain Foods</option></select>
+          <select class="search-box" style="width:150px;cursor:pointer;"><option>All Suppliers</option><option>Vimto Gulf</option><option>Almarai Co.</option><option>PepsiCo ME</option><option>Mondelez ME</option><option>Dabur Gulf</option><option>Henkel ME</option><option>Americana Group</option><option>Sadia Gulf</option><option>Red Bull Dist.</option><option>Nada Dairy</option><option>Kellanova ME</option><option>P&G Dist.</option><option>Unilever ME</option><option>McCain Foods</option></select>
           <input class="search-box" placeholder="Search product or SKU…" style="width:220px;" />
         </div>
         <div class="view-toggle">
@@ -734,7 +736,7 @@
         <div class="kpi-card"><div class="kpi-label">Avg Forecast Accuracy</div><div class="kpi-value">91.4%</div><div class="kpi-change up">↑ across all FMCG models</div></div>
         <div class="kpi-card"><div class="kpi-label">Highest Demand Growth</div><div class="kpi-value up">+38%</div><div class="kpi-change">Vimto · Post-Eid surge</div></div>
         <div class="kpi-card"><div class="kpi-label">SKUs Needing Reorder</div><div class="kpi-value warn">5</div><div class="kpi-change warn">Within 7 days</div></div>
-        <div class="kpi-card"><div class="kpi-label">Predicted Stockouts</div><div class="kpi-value down">2</div><div class="kpi-change down">Next 7 days · High-risk</div></div>
+        <div class="kpi-card"><div class="kpi-label">Predicted Stockouts</div><div class="kpi-value down">3</div><div class="kpi-change down">Next 7 days · High-risk</div></div>
       </div>
     </div><!-- /page-forecast-board -->
 
@@ -742,8 +744,8 @@
     <!-- ══════════ PAGE: ALERTS ══════════ -->
     <div class="page" id="page-alerts">
       <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
-        <div class="kpi-card"><div class="kpi-label">High-Risk Alerts</div><div class="kpi-value down">2</div><div class="kpi-change down">Conservative orders queued</div></div>
-        <div class="kpi-card"><div class="kpi-label">Medium-Risk Warnings</div><div class="kpi-value warn">3</div><div class="kpi-change warn">Buffers applied</div></div>
+        <div class="kpi-card"><div class="kpi-label">High-Risk Alerts</div><div class="kpi-value down">3</div><div class="kpi-change down">Conservative orders queued</div></div>
+        <div class="kpi-card"><div class="kpi-label">Medium-Risk Warnings</div><div class="kpi-value warn">5</div><div class="kpi-change warn">Buffers applied</div></div>
         <div class="kpi-card"><div class="kpi-label">Resolved Today</div><div class="kpi-value up">4</div><div class="kpi-change up">↑ Pipeline auto-handled</div></div>
       </div>
       <div class="alert-panel">
@@ -752,6 +754,7 @@
         </div>
         <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-BEV-002 — Almarai Mango Juice 1L</strong>420 units remaining. Forecast: 3,200 units. Confidence 72%. Post-Eid demand volatility high. Conservative order auto-triggered.<div class="alert-time">2 minutes ago · Conservative order queued</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-FRZ-001 — Americana Chicken Nuggets 400g</strong>280 units — below safety stock (350). Lead: 4d. Demand trend +34%. Mitigation: +2d buffer cover applied.<div class="alert-time">8 minutes ago · Approved</div></div></div>
+        <div class="alert-item"><div class="alert-icon alert-red">CRIT</div><div class="alert-text"><strong>[HIGH RISK] SKU-HPC-003 — Dove Body Wash 500ml</strong>310 units — safety stock 280. Lead: 6d. Only 6.7 days of supply. Confidence 74%. Reorder window closing fast.<div class="alert-time">14 minutes ago · Order pending approval</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-001 — Almarai Full Cream Milk 1L</strong>12.2 days of supply. Confidence 85%. Safety stock buffer increased to 600 units by Mitigation Engine.<div class="alert-time">22 minutes ago · Monitoring</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-SNK-002 — Oreo Original 154g</strong>390 units · 5.6 days supply. Seasonal demand spike +21%. Moderate order strategy applied.<div class="alert-time">35 minutes ago · Order pending</div></div></div>
         <div class="alert-item"><div class="alert-icon alert-yellow">WARN</div><div class="alert-text"><strong>[MEDIUM RISK] SKU-DAI-002 — Almarai Laban 1L</strong>780 units · 8.4 days supply. Short shelf life — Mitigation Engine flagged worst-case overstock risk.<div class="alert-time">1 hour ago · Review recommended</div></div></div>
@@ -789,7 +792,7 @@
     <!-- ══════════ PAGE: SUPPLIERS ══════════ -->
     <div class="page" id="page-suppliers">
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Suppliers</div><div class="kpi-value">7</div><div class="kpi-change up">All active</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Suppliers</div><div class="kpi-value">14</div><div class="kpi-change up">All active</div></div>
         <div class="kpi-card"><div class="kpi-label">Avg Lead Time</div><div class="kpi-value">4.4d</div><div class="kpi-change up">↓ vs last quarter</div></div>
         <div class="kpi-card"><div class="kpi-label">Avg On-Time Rate</div><div class="kpi-value up">94.1%</div><div class="kpi-change up">↑ vs last quarter</div></div>
         <div class="kpi-card"><div class="kpi-label">Open POs</div><div class="kpi-value">6</div><div class="kpi-change">Across 5 suppliers</div></div>
@@ -852,6 +855,16 @@ const skus = [
   { id:'SKU-HLD-001', name:'Persil Automatic 2.5kg',           cat:'Household',     supplier:'Henkel ME',       lead:'7d',  stock:720,  safety:200,  rop:500,  forecast:1200, status:'healthy',  trend:5,   dos:18.0, risk:'low',    conf:91 },
   { id:'SKU-FRZ-001', name:'Americana Chicken Nuggets 400g',   cat:'Frozen Foods',  supplier:'Americana Group', lead:'4d',  stock:280,  safety:350,  rop:800,  forecast:1800, status:'critical', trend:34,  dos:4.7,  risk:'high',   conf:68 },
   { id:'SKU-FRZ-002', name:'Sadia Chicken Breast 1kg',         cat:'Frozen Foods',  supplier:'Sadia Gulf',      lead:'5d',  stock:1300, safety:250,  rop:600,  forecast:1200, status:'healthy',  trend:3,   dos:32.5, risk:'low',    conf:87 },
+  { id:'SKU-BEV-003', name:'Mirinda Orange 330ml',            cat:'Beverages',     supplier:'PepsiCo ME',      lead:'3d',  stock:4200, safety:600,  rop:1500, forecast:6800, status:'healthy',  trend:12,  dos:18.5, risk:'low',    conf:90 },
+  { id:'SKU-BEV-004', name:'Red Bull Energy Drink 250ml',     cat:'Beverages',     supplier:'Red Bull Dist.',  lead:'5d',  stock:980,  safety:400,  rop:900,  forecast:2400, status:'low',      trend:18,  dos:12.3, risk:'medium', conf:81 },
+  { id:'SKU-DAI-003', name:'Nada Full Cream Milk 1L',         cat:'Dairy',         supplier:'Nada Dairy',      lead:'2d',  stock:3100, safety:500,  rop:1200, forecast:5000, status:'healthy',  trend:7,   dos:18.6, risk:'low',    conf:88 },
+  { id:'SKU-DAI-004', name:'Almarai Cream Cheese 200g',       cat:'Dairy',         supplier:'Almarai Co.',     lead:'3d',  stock:560,  safety:300,  rop:700,  forecast:1600, status:'low',      trend:9,   dos:10.5, risk:'medium', conf:79 },
+  { id:'SKU-SNK-003', name:'Pringles Original 165g',          cat:'Snacks',        supplier:'Kellanova ME',    lead:'7d',  stock:2800, safety:400,  rop:1000, forecast:3200, status:'healthy',  trend:5,   dos:26.3, risk:'low',    conf:93 },
+  { id:'SKU-HPC-002', name:'Head & Shoulders Classic 400ml',  cat:'Personal Care', supplier:'P&G Dist.',       lead:'6d',  stock:1400, safety:200,  rop:500,  forecast:1800, status:'healthy',  trend:2,   dos:23.3, risk:'low',    conf:95 },
+  { id:'SKU-HPC-003', name:'Dove Body Wash 500ml',            cat:'Personal Care', supplier:'Unilever ME',     lead:'6d',  stock:310,  safety:280,  rop:650,  forecast:1400, status:'critical', trend:15,  dos:6.7,  risk:'high',   conf:74 },
+  { id:'SKU-HLD-002', name:'Ariel Automatic 3kg',             cat:'Household',     supplier:'P&G Dist.',       lead:'7d',  stock:890,  safety:200,  rop:480,  forecast:1400, status:'healthy',  trend:4,   dos:19.1, risk:'low',    conf:90 },
+  { id:'SKU-HLD-003', name:'Fairy Dish Liquid 1L',            cat:'Household',     supplier:'P&G Dist.',       lead:'5d',  stock:640,  safety:180,  rop:400,  forecast:1100, status:'healthy',  trend:3,   dos:17.5, risk:'low',    conf:92 },
+  { id:'SKU-FRZ-003', name:'McCain Oven Chips 750g',          cat:'Frozen Foods',  supplier:'McCain Foods',    lead:'5d',  stock:1100, safety:200,  rop:500,  forecast:900,  status:'healthy',  trend:-2,  dos:36.7, risk:'low',    conf:89 },
 ];
 
 const statusColor = { critical:'var(--red)', low:'var(--yellow)', healthy:'var(--green)' };
@@ -1186,14 +1199,20 @@ renderReplenishment();
 //  SUPPLIERS DATA & RENDER
 // ═══════════════════════════════════
 const suppliers = [
-  { name:'Vimto Gulf',       cat:'Beverages',     skus:1, lead:'4d',  onTime:96, openOrders:1 },
-  { name:'Almarai Co.',      cat:'Beverages/Dairy',skus:3, lead:'2d',  onTime:98, openOrders:3 },
-  { name:'PepsiCo ME',       cat:'Snacks',        skus:1, lead:'4d',  onTime:97, openOrders:0 },
-  { name:'Mondelez ME',      cat:'Snacks',        skus:1, lead:'6d',  onTime:88, openOrders:1 },
-  { name:'Dabur Gulf',       cat:'Personal Care', skus:1, lead:'7d',  onTime:93, openOrders:0 },
-  { name:'Henkel ME',        cat:'Household',     skus:1, lead:'7d',  onTime:94, openOrders:0 },
-  { name:'Americana Group',  cat:'Frozen Foods',  skus:1, lead:'4d',  onTime:91, openOrders:1 },
-  { name:'Sadia Gulf',       cat:'Frozen Foods',  skus:1, lead:'5d',  onTime:96, openOrders:1 },
+  { name:'Vimto Gulf',       cat:'Beverages',          skus:1, lead:'4d',  onTime:96, openOrders:1 },
+  { name:'Almarai Co.',      cat:'Beverages / Dairy',  skus:4, lead:'2d',  onTime:98, openOrders:3 },
+  { name:'PepsiCo ME',       cat:'Beverages / Snacks', skus:2, lead:'3d',  onTime:97, openOrders:0 },
+  { name:'Mondelez ME',      cat:'Snacks',             skus:1, lead:'6d',  onTime:88, openOrders:1 },
+  { name:'Dabur Gulf',       cat:'Personal Care',      skus:1, lead:'7d',  onTime:93, openOrders:0 },
+  { name:'Henkel ME',        cat:'Household',          skus:1, lead:'7d',  onTime:94, openOrders:0 },
+  { name:'Americana Group',  cat:'Frozen Foods',       skus:1, lead:'4d',  onTime:91, openOrders:1 },
+  { name:'Sadia Gulf',       cat:'Frozen Foods',       skus:1, lead:'5d',  onTime:96, openOrders:1 },
+  { name:'Red Bull Dist.',   cat:'Beverages',          skus:1, lead:'5d',  onTime:95, openOrders:0 },
+  { name:'Nada Dairy',       cat:'Dairy',              skus:1, lead:'2d',  onTime:94, openOrders:0 },
+  { name:'Kellanova ME',     cat:'Snacks',             skus:1, lead:'7d',  onTime:90, openOrders:0 },
+  { name:'P&G Dist.',        cat:'Personal Care / Household', skus:3, lead:'6d', onTime:96, openOrders:0 },
+  { name:'Unilever ME',      cat:'Personal Care',      skus:1, lead:'6d',  onTime:92, openOrders:1 },
+  { name:'McCain Foods',     cat:'Frozen Foods',       skus:1, lead:'5d',  onTime:90, openOrders:0 },
 ];
 
 function renderSuppliers() {

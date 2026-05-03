@@ -1,0 +1,29 @@
+id,name,cat,supplier,lead,stock,safety,rop,forecast,status,trend,dos,risk,conf,perishable,shelfLife,dte,sarValue
+SKU-BEV-001,Vimto Cordial 750ml,Beverages,Vimto Gulf,4d,3800,700,1800,7600,healthy,38,14.9,low,89,false,,,
+SKU-BEV-002,Almarai Mango Juice 1L,Beverages,Almarai Co.,3d,420,500,1100,3200,critical,29,3.9,high,72,false,,,
+SKU-BEV-003,Mirinda Orange 330ml,Beverages,PepsiCo ME,3d,4200,600,1500,6800,healthy,12,18.5,low,90,false,,,
+SKU-BEV-004,Red Bull Energy Drink 250ml,Beverages,Red Bull Dist.,5d,980,400,900,2400,low,18,12.3,medium,81,false,,,
+SKU-DAI-001,Almarai Full Cream Milk 1L,Dairy,Almarai Co.,2d,2200,600,1500,5400,low,4,12.2,medium,85,false,,,
+SKU-DAI-002,Almarai Laban 1L,Dairy,Almarai Co.,2d,780,400,900,2800,low,6,8.4,medium,83,false,,,
+SKU-DAI-003,Nada Full Cream Milk 1L,Dairy,Nada Dairy,2d,3100,500,1200,5000,healthy,7,18.6,low,88,false,,,
+SKU-DAI-004,Almarai Cream Cheese 200g,Dairy,Almarai Co.,3d,560,300,700,1600,low,9,10.5,medium,79,false,,,
+SKU-SNK-001,Chipsy Salt & Vinegar 160g,Snacks,PepsiCo ME,4d,5200,500,1400,5800,healthy,8,27.0,low,92,false,,,
+SKU-SNK-002,Oreo Original 154g,Snacks,Mondelez ME,6d,390,350,800,2100,low,21,5.6,medium,77,false,,,
+SKU-SNK-003,Pringles Original 165g,Snacks,Kellanova ME,7d,2800,400,1000,3200,healthy,5,26.3,low,93,false,,,
+SKU-HPC-001,Vatika Nourishing Shampoo 400ml,Personal Care,Dabur Gulf,7d,1900,250,600,1500,healthy,-3,38.0,low,94,false,,,
+SKU-HPC-002,Head & Shoulders Classic 400ml,Personal Care,P&G Dist.,6d,1400,200,500,1800,healthy,2,23.3,low,95,false,,,
+SKU-HPC-003,Dove Body Wash 500ml,Personal Care,Unilever ME,6d,310,280,650,1400,critical,15,6.7,high,74,false,,,
+SKU-HLD-001,Persil Automatic 2.5kg,Household,Henkel ME,7d,720,200,500,1200,healthy,5,18.0,low,91,false,,,
+SKU-HLD-002,Ariel Automatic 3kg,Household,P&G Dist.,7d,890,200,480,1400,healthy,4,19.1,low,90,false,,,
+SKU-HLD-003,Fairy Dish Liquid 1L,Household,P&G Dist.,5d,640,180,400,1100,healthy,3,17.5,low,92,false,,,
+SKU-FRZ-001,Americana Chicken Nuggets 400g,Frozen Foods,Americana Group,4d,280,350,800,1800,critical,34,4.7,high,68,false,,,
+SKU-FRZ-002,Sadia Chicken Breast 1kg,Frozen Foods,Sadia Gulf,5d,1300,250,600,1200,healthy,3,32.5,low,87,false,,,
+SKU-FRZ-003,McCain Oven Chips 750g,Frozen Foods,McCain Foods,5d,1100,200,500,900,healthy,-2,36.7,low,89,false,,,
+SKU-PRH-001,Fresh Pita Bread 6pk,Perishables,Al Rabie Bakery,1d,480,150,200,900,low,5,16.0,medium,82,true,2,1,8
+SKU-PRH-002,Fresh Labneh 500g,Perishables,Almarai Co.,1d,320,100,200,700,healthy,8,13.7,low,88,true,10,4,14
+SKU-PRH-003,Fresh Cut Salad Mix 250g,Perishables,Fresh Fields,1d,210,80,150,450,low,3,14.0,medium,79,true,4,2,11
+SKU-PRH-004,Fresh Whole Chicken 1.2kg,Perishables,Al Watania,1d,560,150,300,900,healthy,12,18.7,low,85,true,3,1,25
+SKU-PRH-005,Fresh Orange Juice 1L,Perishables,Al Rabie,2d,390,120,250,800,low,7,14.6,medium,80,true,7,3,10
+SKU-PRH-006,Free Range Eggs 15pk,Perishables,Al Watania,1d,850,200,400,1400,healthy,4,18.2,low,91,true,21,12,18
+SKU-PRH-007,Fresh Hummus 200g,Perishables,Baladna,1d,180,80,160,350,low,9,15.4,medium,76,true,6,1,12
+SKU-PRH-008,Greek Yogurt Vanilla 150g,Perishables,Almarai Co.,1d,620,150,300,1100,healthy,6,16.9,low,90,true,14,8,9

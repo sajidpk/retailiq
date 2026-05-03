@@ -908,7 +908,7 @@
 // ═══════════════════════════════════
 //  DATA
 // ═══════════════════════════════════
-const skus = [
+let skus = [
   { id:'SKU-BEV-001', name:'Vimto Cordial 750ml',             cat:'Beverages',     supplier:'Vimto Gulf',      lead:'4d',  stock:3800, safety:700,  rop:1800, forecast:7600, status:'healthy',  trend:38,  dos:14.9, risk:'low',    conf:89 },
   { id:'SKU-BEV-002', name:'Almarai Mango Juice 1L',          cat:'Beverages',     supplier:'Almarai Co.',     lead:'3d',  stock:420,  safety:500,  rop:1100, forecast:3200, status:'critical', trend:29,  dos:3.9,  risk:'high',   conf:72 },
   { id:'SKU-DAI-001', name:'Almarai Full Cream Milk 1L',       cat:'Dairy',         supplier:'Almarai Co.',     lead:'2d',  stock:2200, safety:600,  rop:1500, forecast:5400, status:'low',      trend:4,   dos:12.2, risk:'medium', conf:85 },
@@ -1476,6 +1476,26 @@ function renderPerishPage() {
 
 renderPerishMonitor();
 renderPerishPage();
+
+// ═══════════════════════════════════
+//  API LOADER
+//  When served via server.py, fetches live data from /api/skus
+//  and re-renders all views. Falls back silently to hardcoded data.
+// ═══════════════════════════════════
+(function() {
+  fetch('/api/skus')
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data) {
+      skus = data;
+      renderDashTable();
+      renderExplorerTable(); renderExplorerCards(); renderHeatmap();
+      renderDemandPlanning();
+      renderPerishMonitor(); renderPerishPage();
+    })
+    .catch(function() {
+      /* backend not running — hardcoded data already rendered above */
+    });
+})();
 </script>
 </body>
 </html>
